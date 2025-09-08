@@ -542,7 +542,7 @@ local function createBillboard(player)
 	local textLabel = Instance.new("TextLabel")
 	textLabel.Size = UDim2.new(1, 0, 1, 0)
 	textLabel.BackgroundTransparency = 1
-	textLabel.Text = player.Name
+	textLabel.Text = player.DisplayName
 	textLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
 	textLabel.TextStrokeTransparency = 0
 	textLabel.Font = Enum.Font.SourceSansBold
