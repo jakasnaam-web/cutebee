@@ -26,6 +26,7 @@ function AimlockModule.Init(player, char, camera)
 	local currentHighlight = nil
 	local healthConn = nil
 	local lastHealth = nil
+	local ESPs = {}
 	
 -- =========================
 -- Team Check
@@ -540,63 +541,77 @@ local function getESPColor(player)
 	end
 end
 
-local function createBillboard(player)
-	if not player.Character or not player.Character:FindFirstChild("Head") then return end
-	if espFolder:FindFirstChild(player.Name) then return end
+local function createESP(player)
+	if ESPs[player] then
+		ESPs[player]:Destroy()
+		ESPs[player] = nil
+	end
+
+	local char = player.Character
+	if not char then return end
+	local head = char:FindFirstChild("Head")
+	if not head then return end
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = player.Name
-	billboard.Adornee = player.Character.Head
+	billboard.Adornee = head
 	billboard.Size = UDim2.new(0, 200, 0, 50)
 	billboard.AlwaysOnTop = true
-	billboard.StudsOffset = Vector3.new(0, 2, 0) -- float above head
+	billboard.StudsOffset = Vector3.new(0, 2.5, 0) -- slightly above head
 	billboard.Parent = espFolder
 
 	local textLabel = Instance.new("TextLabel")
 	textLabel.Size = UDim2.new(1, 0, 1, 0)
 	textLabel.BackgroundTransparency = 1
-	textLabel.Text = player.DisplayName
-	textLabel.TextColor3 = getESPColor(player)  -- dynamic color
+	textLabel.Text = player.DisplayName -- DisplayName used
+	textLabel.TextColor3 = getESPColor(player)
 	textLabel.TextStrokeTransparency = 0
 	textLabel.Font = Enum.Font.SourceSansBold
 	textLabel.TextSize = 16
 	textLabel.Parent = billboard
+
+	ESPs[player] = billboard
 end
 
-local function removeBillboard(player)
-	local existing = espFolder:FindFirstChild(player.Name)
-	if existing then
-		existing:Destroy()
+local function removeESP(player)
+	if ESPs[player] then
+		ESPs[player]:Destroy()
+		ESPs[player] = nil
+	end
+end
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	for player, billboard in pairs(ESPs) do
+		if billboard and billboard:FindFirstChildOfClass("TextLabel") then
+			billboard.TextLabel.TextColor3 = getESPColor(player)
+		end
+	end
+end)
+
+local function setupPlayerESP(player)
+	player.CharacterAdded:Connect(function(char)
+		task.wait(0.5) -- wait for head to exist
+		createESP(player)
+	end)
+	if player.Character then
+		task.wait(0.5)
+		createESP(player)
 	end
 end
 
 for _, p in pairs(game.Players:GetPlayers()) do
 	if p ~= game.Players.LocalPlayer then
-		createBillboard(p)
+		setupPlayerESP(p)
 	end
 end
 
 game.Players.PlayerAdded:Connect(function(p)
 	if p ~= game.Players.LocalPlayer then
-		p.CharacterAdded:Connect(function()
-			task.wait(1)
-			createBillboard(p)
-		end)
+		setupPlayerESP(p)
 	end
 end)
 
-game.Players.PlayerRemoving:Connect(function(p)
-	removeBillboard(p)
-end)
-
-for _, p in pairs(game.Players:GetPlayers()) do
-	if p ~= game.Players.LocalPlayer then
-		p.CharacterAdded:Connect(function()
-			task.wait(1)
-			createBillboard(p)
-		end)
-	end
-end
+game.Players.PlayerRemoving:Connect(removeESP)
 
 -- =========================
 -- Cleanup 
@@ -632,6 +647,11 @@ local function cleanup()
     if currentHighlight and currentHighlight.Parent then
         currentHighlight:Destroy()
         currentHighlight = nil
+    end
+    for player, billboard in pairs(ESPs) do
+        if billboard then
+            billboard:Destroy()
+        end
     end
 end
 
