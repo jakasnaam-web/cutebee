@@ -26,6 +26,7 @@ function AimlockModule.Init(player, char, camera)
 	local currentHighlight = nil
 	local healthConn = nil
 	local lastHealth = nil
+	local predictionTime = 0.4
 	
 -- =========================
 -- Team Check
@@ -313,24 +314,25 @@ end
 -- =========================
 -- Swap function (integrated)
 -- =========================
-local function swapToGodhuman()
-	local char = player.Character
-	if not char then return end
 
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-	if not humanoid then return end
+-- local function swapToGodhuman()
+--	local char = player.Character
+--	if not char then return end
 
-	local equipped = char:FindFirstChildOfClass("Tool")
-	if equipped and equipped.Name == "Cursed Dual Katana" then
-		humanoid:UnequipTools()
+--	local humanoid = char:FindFirstChildOfClass("Humanoid")
+--	if not humanoid then return end
 
-		local backpack = player:WaitForChild("Backpack")
-		local godhuman = backpack:FindFirstChild("Godhuman")
-		if godhuman then
-			humanoid:EquipTool(godhuman)
-		end
-	end
-end
+--	local equipped = char:FindFirstChildOfClass("Tool")
+--	if equipped and equipped.Name == "Cursed Dual Katana" then
+--		humanoid:UnequipTools()
+
+--		local backpack = player:WaitForChild("Backpack")
+--		local godhuman = backpack:FindFirstChild("Godhuman")
+--		if godhuman then
+--			humanoid:EquipTool(godhuman)
+--		end
+--	end
+--end
 
 -- =========================
 -- Touch tracking
@@ -350,9 +352,9 @@ UserInputService.TouchEnded:Connect(function(touch)
 		if not next(rightTouches) then
 			stopTiltSmooth()
 			
-			if currentTool and currentTool.Name == "Cursed Dual Katana" and cursedZActive and tiltEnabled then
-				swapToGodhuman()
-			end
+			--if currentTool and currentTool.Name == "Cursed Dual Katana" and cursedZActive and tiltEnabled then
+				--swapToGodhuman()
+			--end
 
 			tiltEnabled = false
 			vActive = false
@@ -461,7 +463,9 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
             if currentEnemyTarget then
                 local dist = (currentEnemyTarget.Position - camera.CFrame.Position).Magnitude
                 local tiltFactor = math.clamp(dist / 40, 0, 0.08)
-                local lookVector = (currentEnemyTarget.Position - camera.CFrame.Position).Unit
+                local enemyHRP = currentEnemyTarget
+				local predictedPos = enemyHRP.Position + enemyHRP.Velocity * predictionTime
+                local lookVector = (predictedPos - camera.CFrame.Position).Unit
                 local tiltedLook = Vector3.new(lookVector.X, lookVector.Y - tiltFactor, lookVector.Z).Unit
                 camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedLook)
             end
@@ -475,13 +479,15 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
             if currentBossTarget then
                 local dist = (currentBossTarget.Position - camera.CFrame.Position).Magnitude
                 local tiltFactor = math.clamp(dist / 40, 0, 0.08)
-                local lookVector = (currentBossTarget.Position - camera.CFrame.Position).Unit
+                local enemyHRP = currentEnemyTarget
+				local predictedPos = enemyHRP.Position + enemyHRP.Velocity * predictionTime
+                local lookVector = (predictedPos - camera.CFrame.Position).Unit
                 local tiltedLook = Vector3.new(lookVector.X, lookVector.Y - tiltFactor, lookVector.Z).Unit
                 camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedLook)
             end
         end
     end
-
+    
     if AimlockPlayerEnabled and currentEnemyTarget then
         if currentTarget ~= currentEnemyTarget.Parent then
             setAimlockTarget(currentEnemyTarget.Parent)
