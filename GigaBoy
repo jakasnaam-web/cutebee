@@ -522,11 +522,23 @@ end)
 table.insert(connections, renderConnTilt)
 
 -- =========================
--- Global Player ESP 
+-- Global Player ESP with Colors
 -- =========================
 local espFolder = Instance.new("Folder")
 espFolder.Name = "GlobalESP"
 espFolder.Parent = game.CoreGui
+
+local function getESPColor(player)
+	if player == game.Players.LocalPlayer then
+		return Color3.fromRGB(0, 255, 0)
+	elseif isAllyWithMe(player) then
+		return Color3.fromRGB(0, 255, 0)
+	elseif isEnemy(player) then
+		return Color3.fromRGB(255, 255, 0)
+	else
+		return Color3.fromRGB(255, 255, 255)
+	end
+end
 
 local function createBillboard(player)
 	if not player.Character or not player.Character:FindFirstChild("Head") then return end
@@ -537,14 +549,14 @@ local function createBillboard(player)
 	billboard.Adornee = player.Character.Head
 	billboard.Size = UDim2.new(0, 200, 0, 50)
 	billboard.AlwaysOnTop = true
-    billboard.StudsOffset = Vector3.new(0, 2, 0)
+	billboard.StudsOffset = Vector3.new(0, 2, 0) -- float above head
 	billboard.Parent = espFolder
 
 	local textLabel = Instance.new("TextLabel")
 	textLabel.Size = UDim2.new(1, 0, 1, 0)
 	textLabel.BackgroundTransparency = 1
 	textLabel.Text = player.DisplayName
-	textLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
+	textLabel.TextColor3 = getESPColor(player)  -- dynamic color
 	textLabel.TextStrokeTransparency = 0
 	textLabel.Font = Enum.Font.SourceSansBold
 	textLabel.TextSize = 16
@@ -558,29 +570,27 @@ local function removeBillboard(player)
 	end
 end
 
--- Create ESP for all existing players
-for _, p in pairs(Players:GetPlayers()) do
-	if p ~= player then
+for _, p in pairs(game.Players:GetPlayers()) do
+	if p ~= game.Players.LocalPlayer then
 		createBillboard(p)
 	end
 end
 
--- Update ESP when players join/leave
-Players.PlayerAdded:Connect(function(p)
-	if p ~= player then
+game.Players.PlayerAdded:Connect(function(p)
+	if p ~= game.Players.LocalPlayer then
 		p.CharacterAdded:Connect(function()
-			task.wait(1) -- wait for head to load
+			task.wait(1)
 			createBillboard(p)
 		end)
 	end
 end)
 
-Players.PlayerRemoving:Connect(function(p)
+game.Players.PlayerRemoving:Connect(function(p)
 	removeBillboard(p)
 end)
 
-for _, p in pairs(Players:GetPlayers()) do
-	if p ~= player then
+for _, p in pairs(game.Players:GetPlayers()) do
+	if p ~= game.Players.LocalPlayer then
 		p.CharacterAdded:Connect(function()
 			task.wait(1)
 			createBillboard(p)
