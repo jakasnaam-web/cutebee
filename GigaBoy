@@ -26,7 +26,6 @@ function AimlockModule.Init(player, char, camera)
 	local currentHighlight = nil
 	local healthConn = nil
 	local lastHealth = nil
-	local predictionTime = 0.4
 	
 -- =========================
 -- Team Check
@@ -461,13 +460,18 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
             end
 
             if currentEnemyTarget then
-                local dist = (currentEnemyTarget.Position - camera.CFrame.Position).Magnitude
-                local tiltFactor = math.clamp(dist / 40, 0, 0.08)
                 local enemyHRP = currentEnemyTarget
-				local predictedPos = enemyHRP.Position + enemyHRP.Velocity * predictionTime
-                local lookVector = (predictedPos - camera.CFrame.Position).Unit
-                local tiltedLook = Vector3.new(lookVector.X, lookVector.Y - tiltFactor, lookVector.Z).Unit
-                camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedLook)
+				local enemyVelocity = enemyHRP.Velocity
+				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
+				local predictionTime = math.clamp(dist / 150, 0.1, 0.04) 
+				local predictedPos
+				if enemyVelocity.Magnitude > 2 then
+				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
+				else
+				    predictedPos = enemyHRP.Position
+				end
+				local lookVector = (predictedPos - camera.CFrame.Position).Unit
+				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + lookVector)
             end
         elseif AimlockNpcEnabled then
             if not currentBossTarget or not currentBossTarget.Parent 
@@ -477,13 +481,18 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
             end
 
             if currentBossTarget then
-                local dist = (currentBossTarget.Position - camera.CFrame.Position).Magnitude
-                local tiltFactor = math.clamp(dist / 40, 0, 0.08)
                 local enemyHRP = currentEnemyTarget
-				local predictedPos = enemyHRP.Position + enemyHRP.Velocity * predictionTime
-                local lookVector = (predictedPos - camera.CFrame.Position).Unit
-                local tiltedLook = Vector3.new(lookVector.X, lookVector.Y - tiltFactor, lookVector.Z).Unit
-                camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedLook)
+				local enemyVelocity = enemyHRP.Velocity
+				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
+				local predictionTime = math.clamp(dist / 150, 0.1, 0.04) 
+				local predictedPos
+				if enemyVelocity.Magnitude > 2 then
+				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
+				else
+				    predictedPos = enemyHRP.Position
+				end
+				local lookVector = (predictedPos - camera.CFrame.Position).Unit
+				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + lookVector)
             end
         end
     end
