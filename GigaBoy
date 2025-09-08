@@ -471,10 +471,10 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				    predictedPos = enemyHRP.Position
 				end
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
-				local yOffset = math.clamp(dist / 40, 2, 6)  
-				predictedPos = predictedPos - Vector3.new(0, yOffset, 0)
+				local yOffset = math.clamp(dist / 40, 0, 0.08)  
 				local lookVector = (predictedPos - camera.CFrame.Position).Unit
-				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + lookVector)
+				local tiltedlook = Vector3.new(lookVector.X, lookVector.Y - yOffset, lookVector.Z).Unit
+				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedlook)
             end
         elseif AimlockNpcEnabled then
             if not currentBossTarget or not currentBossTarget.Parent 
@@ -483,8 +483,8 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
                 currentBossTarget = getNearestBoss(500)
             end
 
-            if currentBossTarget then
-                local enemyHRP = currentBossTarget
+            if currentBossTarget then  
+	            local enemyHRP = currentBossTarget
 				local enemyVelocity = enemyHRP.Velocity
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
@@ -495,10 +495,10 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				    predictedPos = enemyHRP.Position
 				end
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
-				local yOffset = math.clamp(dist / 40, 2, 6)  
-				predictedPos = predictedPos - Vector3.new(0, yOffset, 0)
+				local yOffset = math.clamp(dist / 40, 0, 0.08)  
 				local lookVector = (predictedPos - camera.CFrame.Position).Unit
-				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + lookVector)
+				local tiltedlook = Vector3.new(lookVector.X, lookVector.Y - yOffset, lookVector.Z).Unit
+				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedlook)
             end
         end
     end
