@@ -466,10 +466,13 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
 				local predictedPos
 				if enemyVelocity.Magnitude > 2 then
-				    predictedPos = (enemyHRP.Position - Vector3.new(0, 2, 0)) + enemyVelocity * predictionTime
+				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
 				end
+				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
+				local yOffset = math.clamp(4 - (dist / 100), 1, 4)  
+				predictedPos = predictedPos - Vector3.new(0, yOffset, 0)
 				local lookVector = (predictedPos - camera.CFrame.Position).Unit
 				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + lookVector)
             end
@@ -487,10 +490,13 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
 				local predictedPos
 				if enemyVelocity.Magnitude > 2 then
-				    predictedPos = (enemyHRP.Position - Vector3.new(0, 15, 0)) + enemyVelocity * predictionTime
+				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
 				end
+				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
+				local yOffset = math.clamp(4 - (dist / 100), 1, 4)  
+				predictedPos = predictedPos - Vector3.new(0, yOffset, 0)
 				local lookVector = (predictedPos - camera.CFrame.Position).Unit
 				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + lookVector)
             end
