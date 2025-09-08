@@ -464,6 +464,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
                 local enemyHRP = currentEnemyTarget
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
+				local enemyVelocity = enemyHRP.Velocity
 				local rightDir = camera.CFrame.RightVector
 				local leftRightVel = rightDir * enemyVelocity:Dot(rightDir)
 				local predictedPos
@@ -489,6 +490,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 	            local enemyHRP = currentBossTarget
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
+				local enemyVelocity = enemyHRP.Velocity
 				local rightDir = camera.CFrame.RightVector
 				local leftRightVel = rightDir * enemyVelocity:Dot(rightDir)
 				local predictedPos
@@ -648,6 +650,7 @@ local function cleanup()
         currentHighlight:Destroy()
         currentHighlight = nil
     end
+    
     for player, billboard in pairs(ESPs) do
         if billboard then
             billboard:Destroy()
