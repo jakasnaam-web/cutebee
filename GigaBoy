@@ -522,6 +522,72 @@ end)
 table.insert(connections, renderConnTilt)
 
 -- =========================
+-- Global Player ESP 
+-- =========================
+local espFolder = Instance.new("Folder")
+espFolder.Name = "GlobalESP"
+espFolder.Parent = game.CoreGui
+
+local function createBillboard(player)
+	if not player.Character or not player.Character:FindFirstChild("Head") then return end
+	if espFolder:FindFirstChild(player.Name) then return end
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = player.Name
+	billboard.Adornee = player.Character.Head
+	billboard.Size = UDim2.new(0, 200, 0, 50)
+	billboard.AlwaysOnTop = true
+	billboard.Parent = espFolder
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.Text = player.Name
+	textLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
+	textLabel.TextStrokeTransparency = 0
+	textLabel.Font = Enum.Font.SourceSansBold
+	textLabel.TextSize = 16
+	textLabel.Parent = billboard
+end
+
+local function removeBillboard(player)
+	local existing = espFolder:FindFirstChild(player.Name)
+	if existing then
+		existing:Destroy()
+	end
+end
+
+-- Create ESP for all existing players
+for _, p in pairs(Players:GetPlayers()) do
+	if p ~= player then
+		createBillboard(p)
+	end
+end
+
+-- Update ESP when players join/leave
+Players.PlayerAdded:Connect(function(p)
+	if p ~= player then
+		p.CharacterAdded:Connect(function()
+			task.wait(1) -- wait for head to load
+			createBillboard(p)
+		end)
+	end
+end)
+
+Players.PlayerRemoving:Connect(function(p)
+	removeBillboard(p)
+end)
+
+for _, p in pairs(Players:GetPlayers()) do
+	if p ~= player then
+		p.CharacterAdded:Connect(function()
+			task.wait(1)
+			createBillboard(p)
+		end)
+	end
+end
+
+-- =========================
 -- Cleanup 
 -- =========================
 local function cleanup()
