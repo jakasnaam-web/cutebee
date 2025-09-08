@@ -487,7 +487,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
 				local predictedPos
 				if enemyVelocity.Magnitude > 2 then
-				    predictedPos = (enemyHRP.Position - Vector3.new(0, 2, 0)) + enemyVelocity * predictionTime
+				    predictedPos = (enemyHRP.Position - Vector3.new(0, 6, 0)) + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
 				end
