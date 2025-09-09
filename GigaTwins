@@ -6,14 +6,17 @@ function AimlockModule.Init(player, char, camera)
 	local UserInputService = game:GetService("UserInputService")
 	local Workspace = game:GetService("Workspace")
 	
+	if AimlockModule._cleanup then
+        AimlockModule._cleanup()
+    end
+	
     if not char then
         player.CharacterAdded:Wait()
         char = player.Character
     end
     
 	local humanoid = char:WaitForChild("Humanoid")
-	local AimlockPlayerEnabled = false
-	local AimlockNpcEnabled = false
+	local AimlockPlayerEnabled, AimlockNpcEnabled, PredictionEnabled = false, false, false
 	local currentTarget = nil
 	local currentTool = nil
 	local vActive, sharkZActive, cursedZActive = false, false, false
@@ -21,13 +24,9 @@ function AimlockModule.Init(player, char, camera)
 	local rightTouches = {}
 	local tiltConn, preTiltCFrame, dmgConn = nil, nil, nil
 	local connections = {}
-	local currentEnemyTarget = nil
-	local currentBossTarget = nil
-	local currentHighlight = nil
-	local healthConn = nil
-	local lastHealth = nil
+	local currentEnemyTarget, currentBossTarget, currentHighlight = nil, nil, nil
+	local healthConn, lastHealth = nil, nil
 	local ESPs = {}
-	local PredictionEnabled = false
 	
 -- =========================
 -- Team Check
@@ -630,10 +629,15 @@ local function cleanup()
     healthConn:Disconnect()
     healthConn = nil
     end
+    
+    for _, billboard in pairs(ESPs) do
+        billboard:Destroy()
+    end
 
     disconnectTiltConn()
     currentTool = nil
     rightTouches = {}
+    ESPs = {}
     vActive = false
     sharkZActive = false
     cursedZActive = false
@@ -641,15 +645,9 @@ local function cleanup()
     preTiltCFrame = nil
     lastHealth = nil
 
-    if currentHighlight and currentHighlight.Parent then
+    if currentHighlight then
         currentHighlight:Destroy()
         currentHighlight = nil
-    end
-    
-    for player, billboard in pairs(ESPs) do
-        if billboard then
-            billboard:Destroy()
-        end
     end
 end
 
@@ -682,6 +680,8 @@ end)
 	-- =========================
 	-- RETURN TABLE FOR MAIN SCRIPT USAGE
 	-- =========================
+	AimlockModule._cleanup = cleanup
+	
 	return {
 		toggleAimlock = function(state)
 			AimlockPlayerEnabled = state
