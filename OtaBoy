@@ -3,6 +3,7 @@ local AimlockUI = {}
 function AimlockUI.Init(player, AimlockModule)
     local playerGui = player:WaitForChild("PlayerGui")
     local camera = workspace.CurrentCamera
+    local TweenService = game:GetService("TweenService")
     local aimlockController
 
     -- remove old UI
@@ -13,6 +14,14 @@ function AimlockUI.Init(player, AimlockModule)
     gui.Name = "AimlockGUI"
     gui.Parent = playerGui
     gui.Enabled = false
+    
+    local glowTweenInfo = TweenInfo.new(
+    1, -- duration
+    Enum.EasingStyle.Sine,
+    Enum.EasingDirection.InOut,
+    -1, -- repeat indefinitely
+    true -- reverse tween (ping-pong)
+    )
 
     -- main frame
     local frame = Instance.new("Frame")
@@ -25,12 +34,10 @@ function AimlockUI.Init(player, AimlockModule)
     frame.BackgroundTransparency = 0
     frame.Parent = gui
 
-    frame.MouseEnter:Connect(function()
-        frame.BorderColor3 = Color3.fromRGB(255, 215, 100)
-    end)
-    frame.MouseLeave:Connect(function()
-        frame.BorderColor3 = Color3.fromRGB(200, 170, 90)
-    end)
+    local glowGoal = {BorderColor3 = Color3.fromRGB(255, 215, 100)} -- glowing gold
+
+	local glowTween = TweenService:Create(frame, glowTweenInfo, glowGoal)
+	glowTween:Play()
 
     -- background
     local background = Instance.new("ImageLabel")
@@ -54,12 +61,10 @@ function AimlockUI.Init(player, AimlockModule)
     title.TextColor3 = Color3.fromRGB(80, 50, 30)
     title.Parent = background
 
-    title.MouseEnter:Connect(function()
-        title.TextColor3 = Color3.fromRGB(230, 200, 120)
-    end)
-    title.MouseLeave:Connect(function()
-        title.TextColor3 = Color3.fromRGB(80, 50, 30)
-    end)
+    local glowGoal = {TextColor3 = Color3.fromRGB(255, 215, 100)}
+
+	local glowTween = TweenService:Create(title, glowTweenInfo, glowGoal)
+	glowTween:Play()
 
     -- player aimlock button
     local AimlockPlayerEnabled = false
@@ -76,12 +81,10 @@ function AimlockUI.Init(player, AimlockModule)
     playerButton.Text = "Player Aimlock: OFF"
     playerButton.Parent = background
 
-    playerButton.MouseEnter:Connect(function()
-        playerButton.BorderColor3 = Color3.fromRGB(255, 215, 100)
-    end)
-    playerButton.MouseLeave:Connect(function()
-        playerButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
-    end)
+    local glowGoal = {BorderColor3 = Color3.fromRGB(255, 215, 100)} -- glowing gold
+
+	local glowTween = TweenService:Create(playerButton, glowTweenInfo, glowGoal)
+	glowTween:Play()
 
     playerButton.MouseButton1Click:Connect(function()
         AimlockPlayerEnabled = not AimlockPlayerEnabled
@@ -107,12 +110,10 @@ function AimlockUI.Init(player, AimlockModule)
     bossButton.Text = "NPC Boss Aimlock: OFF"
     bossButton.Parent = background
 
-    bossButton.MouseEnter:Connect(function()
-        bossButton.BorderColor3 = Color3.fromRGB(255, 215, 100)
-    end)
-    bossButton.MouseLeave:Connect(function()
-        bossButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
-    end)
+    local glowGoal = {BorderColor3 = Color3.fromRGB(255, 215, 100)} -- glowing gold
+
+	local glowTween = TweenService:Create(bossButton, glowTweenInfo, glowGoal)
+	glowTween:Play()
 
     bossButton.MouseButton1Click:Connect(function()
         AimlockNpcEnabled = not AimlockNpcEnabled
@@ -138,12 +139,10 @@ function AimlockUI.Init(player, AimlockModule)
     predictionButton.Text = "Prediction: OFF"
     predictionButton.Parent = background
 
-    predictionButton.MouseEnter:Connect(function()
-        predictionButton.BorderColor3 = Color3.fromRGB(255, 215, 100)
-    end)
-    predictionButton.MouseLeave:Connect(function()
-        predictionButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
-    end)
+    local glowGoal = {BorderColor3 = Color3.fromRGB(255, 215, 100)} -- glowing gold
+
+	local glowTween = TweenService:Create(predictionButton, glowTweenInfo, glowGoal)
+	glowTween:Play()
 
     predictionButton.MouseButton1Click:Connect(function()
         PredictionEnabled = not PredictionEnabled
