@@ -473,7 +473,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				    predictedPos = enemyHRP.Position
 				end
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
-				local yOffset = math.clamp(dist / 40, 0, 0.08)  
+				local yOffset = math.clamp(dist / 40, 0, 0.06)  
 				local lookVector = (predictedPos - camera.CFrame.Position).Unit
 				local tiltedlook = Vector3.new(lookVector.X, lookVector.Y - yOffset, lookVector.Z).Unit
 				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedlook)
@@ -497,7 +497,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				    predictedPos = enemyHRP.Position
 				end
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
-				local yOffset = math.clamp(dist / 40, 0, 0.08)  
+				local yOffset = math.clamp(dist / 40, 0, 0.06)  
 				local lookVector = (predictedPos - camera.CFrame.Position).Unit
 				local tiltedlook = Vector3.new(lookVector.X, lookVector.Y - yOffset, lookVector.Z).Unit
 				camera.CFrame = CFrame.new(camera.CFrame.Position, camera.CFrame.Position + tiltedlook)
