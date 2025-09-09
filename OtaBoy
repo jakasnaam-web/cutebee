@@ -1,0 +1,221 @@
+local AimlockUI = {}
+
+function AimlockUI.Init(player, AimlockModule)
+    local playerGui = player:WaitForChild("PlayerGui")
+    local camera = workspace.CurrentCamera
+    local aimlockController
+
+    -- remove old UI
+    local oldGui = playerGui:FindFirstChild("AimlockGUI")
+    if oldGui then oldGui:Destroy() end
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "AimlockGUI"
+    gui.Parent = playerGui
+    gui.Enabled = false
+
+    -- main frame
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 115, 0, 144)
+    frame.AnchorPoint = Vector2.new(0.5, 0.5)
+    frame.Position = UDim2.new(0.485, 0, 0.443, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(60, 40, 20)
+    frame.BorderSizePixel = 4
+    frame.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    frame.BackgroundTransparency = 0
+    frame.Parent = gui
+
+    frame.MouseEnter:Connect(function()
+        frame.BorderColor3 = Color3.fromRGB(255, 215, 100)
+    end)
+    frame.MouseLeave:Connect(function()
+        frame.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    end)
+
+    -- background
+    local background = Instance.new("ImageLabel")
+    background.Size = UDim2.new(0, 115, 0, 144)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BorderSizePixel = 0
+    background.BackgroundTransparency = 1
+    background.Image = "rbxassetid://113345612181334"
+    background.ImageColor3 = Color3.fromRGB(255, 255, 255)
+    background.Parent = frame
+
+    -- title
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(0.667, 0, -0.035, 18)
+    title.Position = UDim2.new(0.154, 0, 0.127, 0)
+    title.BackgroundTransparency = 1
+    title.Text = "⚔ Aimlock Menu ⚔"
+    title.Font = Enum.Font.Antique
+    title.TextSize = 10
+    title.TextScaled = true
+    title.TextColor3 = Color3.fromRGB(80, 50, 30)
+    title.Parent = background
+
+    title.MouseEnter:Connect(function()
+        title.TextColor3 = Color3.fromRGB(230, 200, 120)
+    end)
+    title.MouseLeave:Connect(function()
+        title.TextColor3 = Color3.fromRGB(80, 50, 30)
+    end)
+
+    -- player aimlock button
+    local AimlockPlayerEnabled = false
+    local playerButton = Instance.new("TextButton")
+    playerButton.Size = UDim2.new(0.475, 0, 0, 20)
+    playerButton.Position = UDim2.new(0.258, 0, 0.293, 0)
+    playerButton.BackgroundColor3 = Color3.fromRGB(80, 50, 30)
+    playerButton.BorderSizePixel = 2
+    playerButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    playerButton.TextColor3 = Color3.fromRGB(255, 230, 180)
+    playerButton.Font = Enum.Font.Antique
+    playerButton.TextSize = 8
+    playerButton.TextScaled = true
+    playerButton.Text = "Player Aimlock: OFF"
+    playerButton.Parent = background
+
+    playerButton.MouseEnter:Connect(function()
+        playerButton.BorderColor3 = Color3.fromRGB(255, 215, 100)
+    end)
+    playerButton.MouseLeave:Connect(function()
+        playerButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    end)
+
+    playerButton.MouseButton1Click:Connect(function()
+        AimlockPlayerEnabled = not AimlockPlayerEnabled
+        playerButton.Text = "Player Aimlock: " .. (AimlockPlayerEnabled and "ON" or "OFF")
+        playerButton.BackgroundColor3 = AimlockPlayerEnabled and Color3.fromRGB(30, 120, 40) or Color3.fromRGB(80, 50, 30)
+        if aimlockController and aimlockController.toggleAimlock then
+            aimlockController.toggleAimlock(AimlockPlayerEnabled)
+        end
+    end)
+
+    -- npc boss aimlock button
+    local AimlockNpcEnabled = false
+    local bossButton = Instance.new("TextButton")
+    bossButton.Size = UDim2.new(0.475, 0, 0, 20)
+    bossButton.Position = UDim2.new(0.258, 0, 0.505, 0)
+    bossButton.BackgroundColor3 = Color3.fromRGB(80, 50, 30)
+    bossButton.BorderSizePixel = 2
+    bossButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    bossButton.TextColor3 = Color3.fromRGB(255, 230, 180)
+    bossButton.Font = Enum.Font.Antique
+    bossButton.TextSize = 8
+    bossButton.TextScaled = true
+    bossButton.Text = "NPC Boss Aimlock: OFF"
+    bossButton.Parent = background
+
+    bossButton.MouseEnter:Connect(function()
+        bossButton.BorderColor3 = Color3.fromRGB(255, 215, 100)
+    end)
+    bossButton.MouseLeave:Connect(function()
+        bossButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    end)
+
+    bossButton.MouseButton1Click:Connect(function()
+        AimlockNpcEnabled = not AimlockNpcEnabled
+        bossButton.Text = "NPC Boss Aimlock: " .. (AimlockNpcEnabled and "ON" or "OFF")
+        bossButton.BackgroundColor3 = AimlockNpcEnabled and Color3.fromRGB(30, 40, 120) or Color3.fromRGB(80, 50, 30)
+        if aimlockController and aimlockController.toggleBossAimlock then
+            aimlockController.toggleBossAimlock(AimlockNpcEnabled)
+        end
+    end)
+
+    -- prediction button
+    local PredictionEnabled = false
+    local predictionButton = Instance.new("TextButton")
+    predictionButton.Size = UDim2.new(0.475, 0, 0, 20)
+    predictionButton.Position = UDim2.new(0.25, 0, 0.709, 0)
+    predictionButton.BackgroundColor3 = Color3.fromRGB(80, 50, 30)
+    predictionButton.BorderSizePixel = 2
+    predictionButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    predictionButton.TextColor3 = Color3.fromRGB(255, 230, 180)
+    predictionButton.Font = Enum.Font.Antique
+    predictionButton.TextSize = 8
+    predictionButton.TextScaled = true
+    predictionButton.Text = "Prediction: OFF"
+    predictionButton.Parent = background
+
+    predictionButton.MouseEnter:Connect(function()
+        predictionButton.BorderColor3 = Color3.fromRGB(255, 215, 100)
+    end)
+    predictionButton.MouseLeave:Connect(function()
+        predictionButton.BorderColor3 = Color3.fromRGB(200, 170, 90)
+    end)
+
+    predictionButton.MouseButton1Click:Connect(function()
+        PredictionEnabled = not PredictionEnabled
+        predictionButton.Text = "Prediction: " .. (PredictionEnabled and "ON" or "OFF")
+        predictionButton.BackgroundColor3 = PredictionEnabled and Color3.fromRGB(120, 30, 40) or Color3.fromRGB(80, 50, 30)
+        if aimlockController and aimlockController.togglePrediction then
+            aimlockController.togglePrediction(PredictionEnabled)
+        end
+    end)
+
+    -- draggable frame
+    local dragging, dragStart, startPos, draggingButton
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        draggingButton.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+
+    local function setupDragging(btn)
+        btn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                draggingButton = btn
+                dragStart = input.Position
+                startPos = btn.Position
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        btn.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                if dragging and draggingButton == btn then
+                    update(input)
+                end
+            end
+        end)
+    end
+
+    setupDragging(frame)
+
+    -- aimlock controller initializer
+    local function initAimlockController(char)
+        if aimlockController and aimlockController.cleanup then
+            aimlockController.cleanup()
+        end
+        aimlockController = AimlockModule.Init(player, char, camera)
+    end
+
+    player.CharacterAdded:Connect(function(char)
+        if gui.Enabled then
+            initAimlockController(char)
+        end
+    end)
+
+    -- return UI controller
+    return {
+        Gui = gui,
+        Toggle = function(state)
+            gui.Enabled = state
+            if state and not aimlockController then
+                initAimlockController(player.Character or player.CharacterAdded:Wait())
+            end
+        end
+    }
+end
+
+return AimlockUI
