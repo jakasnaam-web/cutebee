@@ -27,6 +27,7 @@ function AimlockModule.Init(player, char, camera)
 	local healthConn = nil
 	local lastHealth = nil
 	local ESPs = {}
+	local PredictionEnabled = true
 	
 -- =========================
 -- Team Check
@@ -466,7 +467,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.3) 
 				local enemyVelocity = enemyHRP.Velocity
 				local predictedPos
-				if enemyVelocity.Magnitude > 6 then
+				if PredictionEnabled and enemyVelocity.Magnitude > 6 then
 				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
@@ -490,7 +491,7 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
 				local predictionTime = math.clamp(dist / 150, 0.1, 0.3) 
 				local enemyVelocity = enemyHRP.Velocity
 				local predictedPos
-				if enemyVelocity.Magnitude > 6 then
+				if PredictionEnabled and enemyVelocity.Magnitude > 6 then
 				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
@@ -696,6 +697,9 @@ end)
 			    currentBossTarget = nil
 			end
 		end,
+		togglePrediction = function(state)
+	        PredictionEnabled = state
+	    end,
 		cleanup = cleanup
 	}
 end
