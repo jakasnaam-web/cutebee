@@ -27,7 +27,7 @@ function AimlockModule.Init(player, char, camera)
 	local healthConn = nil
 	local lastHealth = nil
 	local ESPs = {}
-	local PredictionEnabled = true
+	local PredictionEnabled = false
 	
 -- =========================
 -- Team Check
