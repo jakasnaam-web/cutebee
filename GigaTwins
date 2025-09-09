@@ -463,10 +463,10 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
             if currentEnemyTarget then
                 local enemyHRP = currentEnemyTarget
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
-				local predictionTime = math.clamp(dist / 150, 0.1, 0.3) 
+				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
 				local enemyVelocity = enemyHRP.Velocity
 				local predictedPos
-				if PredictionEnabled and enemyVelocity.Magnitude > 6 then
+				if PredictionEnabled and enemyVelocity.Magnitude > 4 then
 				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
@@ -486,10 +486,10 @@ local renderConnTilt = RunService.RenderStepped:Connect(function()
             if currentBossTarget then  
 	            local enemyHRP = currentBossTarget
 				local dist = (enemyHRP.Position - camera.CFrame.Position).Magnitude
-				local predictionTime = math.clamp(dist / 150, 0.1, 0.3) 
+				local predictionTime = math.clamp(dist / 150, 0.1, 0.4) 
 				local enemyVelocity = enemyHRP.Velocity
 				local predictedPos
-				if PredictionEnabled and enemyVelocity.Magnitude > 6 then
+				if PredictionEnabled and enemyVelocity.Magnitude > 4 then
 				    predictedPos = enemyHRP.Position + enemyVelocity * predictionTime
 				else
 				    predictedPos = enemyHRP.Position
