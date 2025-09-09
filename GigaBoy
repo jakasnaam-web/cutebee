@@ -689,12 +689,16 @@ end)
 			AimlockPlayerEnabled = state
 			if not state then
 			    currentEnemyTarget = nil
+				setAimlockTarget(nil)
+				camera.CameraSubject = humanoid
 			end
 		end,
 		toggleBossAimlock = function(state)
 			AimlockNpcEnabled = state
 			if not state then
 			    currentBossTarget = nil
+				setAimlockTarget(nil)
+				camera.CameraSubject = humanoid
 			end
 		end,
 		togglePrediction = function(state)
