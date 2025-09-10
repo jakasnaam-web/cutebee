@@ -5,6 +5,14 @@ function AimlockUI.Init(player, AimlockModule)
     local camera = workspace.CurrentCamera
     local TweenService = game:GetService("TweenService")
     local aimlockController
+    local char = player.Character or player.CharacterAdded:Wait()
+    
+    local function initAimlockController(character)
+		if aimlockController and aimlockController.cleanup then
+			aimlockController.cleanup()
+		end
+		aimlockController = AimlockModule.Init(player, character, camera)
+	end
 
     -- remove old UI
     local oldGui = playerGui:FindFirstChild("AimlockGUI")
@@ -86,14 +94,13 @@ function AimlockUI.Init(player, AimlockModule)
 	local glowTween = TweenService:Create(playerButton, glowTweenInfo, glowGoal)
 	glowTween:Play()
 
-    playerButton.MouseButton1Click:Connect(function()
-        AimlockPlayerEnabled = not AimlockPlayerEnabled
-        playerButton.Text = "Player Aimlock: " .. (AimlockPlayerEnabled and "ON" or "OFF")
-        playerButton.BackgroundColor3 = AimlockPlayerEnabled and Color3.fromRGB(30, 120, 40) or Color3.fromRGB(80, 50, 30)
-        if aimlockController and aimlockController.toggleAimlock then
-            aimlockController.toggleAimlock(AimlockPlayerEnabled)
-        end
-    end)
+    
+	playerButton.MouseButton1Click:Connect(function()
+		AimlockPlayerEnabled = not AimlockPlayerEnabled
+		playerButton.Text = "Player Aimlock: " .. (AimlockPlayerEnabled and "ON" or "OFF")
+		playerButton.BackgroundColor3 = AimlockPlayerEnabled and Color3.fromRGB(30, 120, 40) or Color3.fromRGB(80, 50, 30)
+		aimlockController.toggleAimlock(AimlockPlayerEnabled)
+	end)
 
     -- npc boss aimlock button
     local AimlockNpcEnabled = false
@@ -116,13 +123,11 @@ function AimlockUI.Init(player, AimlockModule)
 	glowTween:Play()
 
     bossButton.MouseButton1Click:Connect(function()
-        AimlockNpcEnabled = not AimlockNpcEnabled
-        bossButton.Text = "NPC Boss Aimlock: " .. (AimlockNpcEnabled and "ON" or "OFF")
-        bossButton.BackgroundColor3 = AimlockNpcEnabled and Color3.fromRGB(30, 40, 120) or Color3.fromRGB(80, 50, 30)
-        if aimlockController and aimlockController.toggleBossAimlock then
-            aimlockController.toggleBossAimlock(AimlockNpcEnabled)
-        end
-    end)
+		AimlockNpcEnabled = not AimlockNpcEnabled
+		bossButton.Text = "NPC Boss Aimlock: " .. (AimlockNpcEnabled and "ON" or "OFF")
+		bossButton.BackgroundColor3 = AimlockNpcEnabled and Color3.fromRGB(30, 40, 120) or Color3.fromRGB(80, 50, 30)
+		aimlockController.toggleBossAimlock(AimlockNpcEnabled)
+	end)
 
     -- prediction button
     local PredictionEnabled = false
@@ -145,13 +150,11 @@ function AimlockUI.Init(player, AimlockModule)
 	glowTween:Play()
 
     predictionButton.MouseButton1Click:Connect(function()
-        PredictionEnabled = not PredictionEnabled
-        predictionButton.Text = "Prediction: " .. (PredictionEnabled and "ON" or "OFF")
-        predictionButton.BackgroundColor3 = PredictionEnabled and Color3.fromRGB(120, 30, 40) or Color3.fromRGB(80, 50, 30)
-        if aimlockController and aimlockController.togglePrediction then
-            aimlockController.togglePrediction(PredictionEnabled)
-        end
-    end)
+		PredictionEnabled = not PredictionEnabled
+		predictionButton.Text = "Prediction: " .. (PredictionEnabled and "ON" or "OFF")
+		predictionButton.BackgroundColor3 = PredictionEnabled and Color3.fromRGB(120, 30, 40) or Color3.fromRGB(80, 50, 30)
+		aimlockController.togglePrediction(PredictionEnabled)
+	end)
 
     -- draggable frame
     local dragging, dragStart, startPos, draggingButton
@@ -190,14 +193,8 @@ function AimlockUI.Init(player, AimlockModule)
     end
 
     setupDragging(frame)
-
-    -- aimlock controller initializer
-    local function initAimlockController(char)
-        if aimlockController and aimlockController.cleanup then
-            aimlockController.cleanup()
-        end
-        aimlockController = AimlockModule.Init(player, char, camera)
-    end
+    
+    initAimlockController(char)
 
     player.CharacterAdded:Connect(function(char)
         if gui.Enabled then
