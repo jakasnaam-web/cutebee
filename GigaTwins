@@ -419,7 +419,6 @@ local function watchHealth(humanoid)
     table.insert(connections, healthConn)
 end
 
-
 local function setAimlockTarget(targetModel)
     if currentHighlight then
         currentHighlight:Destroy()
@@ -427,6 +426,12 @@ local function setAimlockTarget(targetModel)
     end
 
     if not targetModel then
+        currentTarget = nil
+        return
+    end
+    
+    local humanoid = targetModel:FindFirstChildOfClass("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then
         currentTarget = nil
         return
     end
@@ -440,12 +445,21 @@ local function setAimlockTarget(targetModel)
         highlight.Adornee = targetModel
         highlight.Parent = targetModel
         currentHighlight = highlight
+        
+        humanoid.Died:Connect(function()
+	        if currentHighlight then
+	            currentHighlight:Destroy()
+	            currentHighlight = nil
+	        end
+	        currentTarget = nil
+	    end)
 
         if currentTarget ~= targetModel then
             watchDamageCounter()
         end
         currentTarget = targetModel
     end
+    table.insert(connections, currentHighlight)
 end
 
 local renderConnTilt = RunService.RenderStepped:Connect(function()
@@ -633,6 +647,11 @@ local function cleanup()
     for _, billboard in pairs(ESPs) do
         billboard:Destroy()
     end
+    
+    if currentHighlight then
+        currentHighlight:Destroy()
+        currentHighlight = nil
+    end
 
     disconnectTiltConn()
     currentTool = nil
@@ -644,11 +663,6 @@ local function cleanup()
     tiltEnabled = false
     preTiltCFrame = nil
     lastHealth = nil
-
-    if currentHighlight then
-        currentHighlight:Destroy()
-        currentHighlight = nil
-    end
 end
 
 -- =========================
