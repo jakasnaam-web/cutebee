@@ -458,8 +458,20 @@ local function setAimlockTarget(targetModel)
 	            currentHighlight = nil
 	        end
 	        currentTarget = nil
+			local parentModel = targetModel
+			if parentModel and parentModel:IsDescendantOf(workspace) then
+				parentModel.AncestryChanged:Connect(function(_, parent)
+					if parent then
+						task.wait(0.5) -- wait for parts to load
+						local newHumanoid = parentModel:FindFirstChildOfClass("Humanoid")
+						if newHumanoid and newHumanoid.Health > 0 then
+							setAimlockTarget(parentModel)
+						end
+					end
+				end)
+			end
 	    end)
-
+	
         if currentTarget ~= targetModel then
             watchDamageCounter()
         end
@@ -649,6 +661,11 @@ local function cleanup()
     healthConn:Disconnect()
     healthConn = nil
     end
+    
+    if currentHighlight and currentHighlight.Parent then
+        currentHighlight:Destroy()
+        currentHighlight = nil
+    end
 
     disconnectTiltConn()
     currentTool = nil
@@ -659,11 +676,6 @@ local function cleanup()
     tiltEnabled = false
     preTiltCFrame = nil
     lastHealth = nil
-
-    if currentHighlight and currentHighlight.Parent then
-        currentHighlight:Destroy()
-        currentHighlight = nil
-    end
     
     for player, billboard in pairs(ESPs) do
         if billboard then
