@@ -87,76 +87,6 @@ local function isEnemy(targetPlayer)
 end
 
 -- =========================
--- Ken Skill Auto Functions
--- =========================
-local function pressKen()
-    vim:SendMouseButtonEvent(x, y, 0, true, game, 0)
-    vim:SendMouseButtonEvent(x, y, 0, false, game, 0)
-end
-
-local function startKenLoop()
-    if kenLoopRunning then return end
-    kenLoopRunning = true
-
-    task.spawn(function()
-        while kenLoopRunning do
-            if kenButton:GetAttribute("Selected") == false then
-                pressKen()
-            end
-            task.wait(0.2) -- check every half-second
-        end
-    end)
-end
-
-local function stopKenLoop()
-    kenLoopRunning = false
-end
-
--- =========================
--- Enemies Finder
--- =========================
-local function getNearestEnemy(maxDistance)
-	local hrp = char:WaitForChild("HumanoidRootPart")
-	local nearest, shortest = nil, maxDistance or 100
-
-	for _, p in pairs(Players:GetPlayers()) do
-		if p ~= player and isEnemy(p) and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-			local humanoid = p.Character:FindFirstChildOfClass("Humanoid")
-			if humanoid and humanoid.Health > 0 then
-				local enemyHRP = p.Character.HumanoidRootPart
-				local dist = (enemyHRP.Position - hrp.Position).Magnitude
-				if dist < shortest then
-					shortest = dist
-					nearest = enemyHRP
-				end
-			end
-		end
-	end
-
-	return nearest
-end
-
-local function getNearestBoss(maxDistance)
-	local hrp = char:WaitForChild("HumanoidRootPart")
-	local nearest, shortest = nil, maxDistance or 500
-	local bossFolder = Workspace:FindFirstChild("Enemies")
-	if bossFolder then
-		for _, boss in pairs(bossFolder:GetChildren()) do
-			local humanoid = boss:FindFirstChildOfClass("Humanoid")
-			if boss:FindFirstChild("HumanoidRootPart") and humanoid and humanoid.Health > 0 then
-				local bossHRP = boss.HumanoidRootPart
-				local dist = (bossHRP.Position - hrp.Position).Magnitude
-				if dist < shortest then
-					shortest = dist
-					nearest = bossHRP
-				end
-			end
-		end
-	end
-	return nearest
-end
-
--- =========================
 -- Tilt Camera Function
 -- =========================
 local function disconnectTiltConn()
@@ -352,6 +282,29 @@ local function canTilt()
 	    or (currentTool and currentTool.Name == "Shark Anchor" and sharkZActive)
 	    or (currentTool and currentTool.Name == "Cursed Dual Katana" and cursedZActive)
 end
+
+-- =========================
+-- Swap function (integrated)
+-- =========================
+
+-- local function swapToGodhuman()
+--	local char = player.Character
+--	if not char then return end
+
+--	local humanoid = char:FindFirstChildOfClass("Humanoid")
+--	if not humanoid then return end
+
+--	local equipped = char:FindFirstChildOfClass("Tool")
+--	if equipped and equipped.Name == "Cursed Dual Katana" then
+--		humanoid:UnequipTools()
+
+--		local backpack = player:WaitForChild("Backpack")
+--		local godhuman = backpack:FindFirstChild("Godhuman")
+--		if godhuman then
+--			humanoid:EquipTool(godhuman)
+--		end
+--	end
+--end
 
 -- =========================
 -- Touch tracking
@@ -746,19 +699,13 @@ end)
 	return {
 		toggleAimlock = function(state)
 			AimlockPlayerEnabled = state
-			if state then
-	            startKenLoop()
-	        else
-	            stopKenLoop()
-			    currentEnemyTarget = nil
-			end
+			if not state then  
+			    currentEnemyTarget = nil  
+			end 
 		end,
 		toggleBossAimlock = function(state)
 			AimlockNpcEnabled = state
-			if state then
-	            startKenLoop()
-	        else
-	            stopKenLoop()
+			if not state then
 			    currentBossTarget = nil
 			end
 		end,
