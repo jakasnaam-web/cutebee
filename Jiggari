@@ -87,6 +87,50 @@ local function isEnemy(targetPlayer)
 end
 
 -- =========================
+-- Enemies Finder
+-- =========================
+local function getNearestEnemy(maxDistance)
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local nearest, shortest = nil, maxDistance or 100
+
+	for _, p in pairs(Players:GetPlayers()) do
+		if p ~= player and isEnemy(p) and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+			local humanoid = p.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid and humanoid.Health > 0 then
+				local enemyHRP = p.Character.HumanoidRootPart
+				local dist = (enemyHRP.Position - hrp.Position).Magnitude
+				if dist < shortest then
+					shortest = dist
+					nearest = enemyHRP
+				end
+			end
+		end
+	end
+
+	return nearest
+end
+
+local function getNearestBoss(maxDistance)
+	local hrp = char:WaitForChild("HumanoidRootPart")
+	local nearest, shortest = nil, maxDistance or 500
+	local bossFolder = Workspace:FindFirstChild("Enemies")
+	if bossFolder then
+		for _, boss in pairs(bossFolder:GetChildren()) do
+			local humanoid = boss:FindFirstChildOfClass("Humanoid")
+			if boss:FindFirstChild("HumanoidRootPart") and humanoid and humanoid.Health > 0 then
+				local bossHRP = boss.HumanoidRootPart
+				local dist = (bossHRP.Position - hrp.Position).Magnitude
+				if dist < shortest then
+					shortest = dist
+					nearest = bossHRP
+				end
+			end
+		end
+	end
+	return nearest
+end
+
+-- =========================
 -- Tilt Camera Function
 -- =========================
 local function disconnectTiltConn()
