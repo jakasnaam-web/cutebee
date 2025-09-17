@@ -1,13 +1,16 @@
 Playersaimbot = nil
-local mouse = game.Players.LocalPlayer:GetMouse()
 local guiservice = game.GetService(game, "GuiService")
 local players = game.GetService(game, "Players")
 local localPlayer = players.LocalPlayer
 local currentCamera = game.GetService(game, "Workspace").CurrentCamera
-local circle = Drawing.new("Circle")
+local UserInputService = game:GetService("UserInputService")
 
 if game:GetService("CoreGui"):FindFirstChild('infoplayers') then 
     game:GetService("CoreGui"):FindFirstChild('infoplayers'):Destroy()
+end
+
+if not UserInputService.TouchEnabled then
+    return -- stop execution on PC
 end
 
 local infoplayers = Instance.new("ScreenGui")
@@ -139,25 +142,6 @@ Healthgreen.Size = UDim2.new(0, 155, 0, 8)
 HealthgreenCorner.Name = "HealthgreenCorner"
 HealthgreenCorner.Parent = Healthgreen
 
-function updateCircle(Fov,colorCircle)
-   if circle.__OBJECT_EXISTS then
-       circle.Transparency = 1
-       circle.Visible = true
-       circle.Thickness = 2
-       circle.Color = colorCircle
-       circle.NumSides = 100
-       circle.Radius = (Fov * 6) / 2
-       circle.Filled = false
-       circle.Position = Vector2.new(mouse.X, mouse.Y + (guiservice.GetGuiInset(guiservice).Y))
-   end
-end
-spawn(function()
-    game.GetService(game, "RunService").RenderStepped:Connect(function()
-        pcall(function()
-        updateCircle(getgenv().setting['Fov'],getgenv().setting['Color'])
-        end)
-    end)
-end)
 spawn(function()
     pcall(function()
         while wait() do
@@ -234,7 +218,6 @@ spawn(function()
         return old(...)
     end)
 end)
-mouse.Button1Down:Connect(function()
 
 -- Mobile shoot on lockButton / another button
 lockButton.MouseButton1Click:Connect(function()
