@@ -1,45 +1,32 @@
 local AimlockModule = {}
 
+local Players = game:GetService("Players")
+local camera = workspace.CurrentCamera
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
-	local Players = game:GetService("Players")
-	local camera = workspace.CurrentCamera
-	local player = Players.LocalPlayer
-	local char = player.Character or player.CharacterAdded:Wait()
-	local RunService = game:GetService("RunService")
-	local UserInputService = game:GetService("UserInputService")
-	local Workspace = game:GetService("Workspace")
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local CommE = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommE")
-	local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
-	
-	
-    if not char then
-        player.CharacterAdded:Wait()
-        char = player.Character
-    end
-   
-	local humanoid = char:WaitForChild("Humanoid") 
-	local AimlockPlayerEnabled, AimlockNpcEnabled, PredictionEnabled, V3Enabled = false, false, false, false
-	local currentTarget = nil
-	local currentTool = nil
-	local vActive, sharkZActive, cursedZActive = false, false, false
-	local tiltEnabled = false
-	local rightTouches = {}
-	local tiltConn, preTiltCFrame, dmgConn = nil, nil, nil
-	local connections = {}
-	local currentEnemyTarget, currentBossTarget, currentHighlight = nil, nil, nil
-	local healthConn, lastHealth = nil, nil
-	local ESPs = {}
-	local EXPANDED_SIZE = Vector3.new(35, 35, 35)
-	local originalSizes = {}
-	local lastSearch = 0
-	local searchInterval = 0.09
-	local cachedEnemy = nil
-	local cachedBoss = nil
-	local playerStates = {}
-	local cooldownTime = 31
-	local v3Loop = nil
-	local v3LoopRunning = false
+if not char then
+    player.CharacterAdded:Wait()
+    char = player.Character
+end
+  
+local humanoid = char:WaitForChild("Humanoid") 
+local AimlockPlayerEnabled, AimlockNpcEnabled, PredictionEnabled = false, false, false
+local currentTarget = nil
+local currentTool = nil
+local vActive, sharkZActive, cursedZActive = false, false, false
+local tiltEnabled = false
+local rightTouches = {}
+local tiltConn, preTiltCFrame, dmgConn = nil, nil, nil
+local currentEnemyTarget, currentBossTarget, currentHighlight = nil, nil, nil
+local healthConn, lastHealth = nil, nil
+local lastSearch = 0
+local searchInterval = 0.09
+local cachedEnemy = nil
+local cachedBoss = nil
 	
 -- =========================
 -- Team Check
@@ -207,156 +194,6 @@ local function startTilt()
 end
 
 -- =========================
--- Hitbox On Fighting style 
--- =========================
-local fightingStyles = {
-    ["Godhuman"] = true,
-    ["Sanguine Art"] = true,
-    ["Dragon Talon"] = true,
-    ["Electric Claw"] = true,
-    ["Sharkman Karate"] = true,
-    ["Death Step"] = true
-}
-
-local function expandWeapon(weapon)
-    if not currentTool or not fightingStyles[currentTool.Name] then return end
-	for _, part in ipairs(weapon:GetDescendants()) do
-		if part:IsA("BasePart") then
-			if not originalSizes[part] then
-				originalSizes[part] = part.Size
-			end
-			part.Size = EXPANDED_SIZE
-			part.CanCollide = false
-		end
-	end
-end
-
-local function resetWeapon(weapon)
-	for _, part in ipairs(weapon:GetDescendants()) do
-		if part:IsA("BasePart") and originalSizes[part] then
-			part.Size = originalSizes[part]
-			originalSizes[part] = nil
-		end
-	end
-end
-
-local toolWatchers = setmetatable({}, {__mode = "k"}) -- weak keys
-
-local function watchEquippedWeapon(char, tool)
-	if not tool or not fightingStyles[tool.Name] then return end
-
-    if toolWatchers[tool] then return end
-
-    local watcher = {eqConn = nil, remConn = nil, descConns = {}, ancestryConn = nil}
-    toolWatchers[tool] = watcher
-
-    watcher.eqConn = char.ChildAdded:Connect(function(child)
-		if child.Name == "EquippedWeapon" and child:IsA("Model") then
-            if tool.Parent == char and fightingStyles[tool.Name] then
-                expandWeapon(child)
-
-                local descConn
-                descConn = child.DescendantAdded:Connect(function(desc)
-                    if desc:IsA("BasePart") then
-                        if tool.Parent == char and fightingStyles[tool.Name] then
-                            if not originalSizes[desc] then
-                                originalSizes[desc] = desc.Size
-                            end
-                            desc.Size = EXPANDED_SIZE
-                            desc.CanCollide = false
-                        end
-                    end
-                end)
-                table.insert(watcher.descConns, descConn)
-            end
-		end
-	end)
-
-    watcher.remConn = char.ChildRemoved:Connect(function(child)
-        if child.Name == "EquippedWeapon" and child:IsA("Model") then
-            resetWeapon(child)
-        end
-    end)
-
-    local existing = char:FindFirstChild("EquippedWeapon")
-    if existing and existing:IsA("Model") and tool.Parent == char and fightingStyles[tool.Name] then
-        expandWeapon(existing)
-    end
-
-    watcher.ancestryConn = tool.AncestryChanged:Connect(function(_, parent)
-        if not parent or parent ~= char then
-            if watcher.eqConn and watcher.eqConn.Connected then watcher.eqConn:Disconnect() end
-            if watcher.remConn and watcher.remConn.Connected then watcher.remConn:Disconnect() end
-            for _, dc in ipairs(watcher.descConns) do
-                if dc and dc.Connected then dc:Disconnect() end
-            end
-            watcher.descConns = {}
-
-            if watcher.ancestryConn and watcher.ancestryConn.Connected then
-                watcher.ancestryConn:Disconnect()
-            end
-            toolWatchers[tool] = nil
-
-            local weapon = char:FindFirstChild("EquippedWeapon")
-            if weapon then
-                resetWeapon(weapon)
-            end
-        end
-    end)
-    table.insert(connections, watcher.eqConn)
-    table.insert(connections, watcher.remConn)
-    table.insert(connections, watcher.ancestryConn)
-    for _, dc in ipairs(watcher.descConns) do
-        table.insert(connections, dc)
-    end
-end
-
-local function hookToolHit(tool)
-	currentTool = tool
-	tool.AncestryChanged:Connect(function(_, parent)
-		if not parent then
-            local w = toolWatchers[tool]
-            if w then
-                if w.eqConn and w.eqConn.Connected then w.eqConn:Disconnect() end
-                if w.remConn and w.remConn.Connected then w.remConn:Disconnect() end
-                for _, dc in ipairs(w.descConns) do
-                    if dc and dc.Connected then dc:Disconnect() end
-                end
-                if w.ancestryConn and w.ancestryConn.Connected then w.ancestryConn:Disconnect() end
-                toolWatchers[tool] = nil
-            end
-		end
-	end)
-end
-
-char.ChildAdded:Connect(function(tool)
-	if tool:IsA("Tool") and fightingStyles[tool.Name] then
-		hookToolHit(tool)
-		watchEquippedWeapon(char, tool)
-	end
-end)
-
-char.ChildRemoved:Connect(function(tool)
-	if tool:IsA("Tool") and fightingStyles[tool.Name] then
-		local weapon = char:FindFirstChild("EquippedWeapon")
-		if weapon then
-			resetWeapon(weapon)
-		end
-
-        local w = toolWatchers[tool]
-        if w then
-            if w.eqConn and w.eqConn.Connected then w.eqConn:Disconnect() end
-            if w.remConn and w.remConn.Connected then w.remConn:Disconnect() end
-            for _, dc in ipairs(w.descConns) do
-                if dc and dc.Connected then dc:Disconnect() end
-            end
-            if w.ancestryConn and w.ancestryConn.Connected then w.ancestryConn:Disconnect() end
-            toolWatchers[tool] = nil
-        end
-	end
-end)
-
--- =========================
 -- Tool equip / unequip 
 -- =========================
 local function hookTool(tool)
@@ -458,22 +295,6 @@ old = hookmetamethod(game, "__namecall", function(self, ...)
                         end
                     end
                 end)
-            end
-        end
-
-        -- Only perform dodge if V3 toggle is enabled
-        if typeof(a1) == "string" and a1:upper() == "DODGE" then
-            if V3Enabled then
-                -- ensure humanoid exists
-                local ok, h = pcall(function() return humanoid end)
-                if ok and h and h.Parent then
-                    task.defer(function()
-                        -- safer to check state exists
-                        pcall(function()
-                            h:ChangeState(Enum.HumanoidStateType.Jumping)
-                        end)
-                    end)
-                end
             end
         end
 
@@ -693,132 +514,6 @@ local renderConnTilt = RunService.RenderStepped:Connect(function(dt)
 end)
 
 -- =========================
--- Ability V3
--- =========================
-pcall(function() CommF:InvokeServer("Buso") end)
-
-local function clickActivateAbility()
-    if CommE then
-        CommE:FireServer("ActivateAbility")
-    end
-end
-
-local function startV3Loop()
-    if v3LoopRunning then return end
-    v3LoopRunning = true
-    v3Loop = task.spawn(function()
-        while v3LoopRunning do
-            if not player or not player.Parent then break end
-            pcall(clickActivateAbility)
-            task.wait(cooldownTime)
-        end
-        v3Loop = nil
-    end)
-end
-
-local function stopV3Loop()
-    if not v3LoopRunning then return end
-    v3LoopRunning = false
-    v3Loop = nil
-end
-
--- =========================
--- Global Player ESP with Colors
--- =========================
-local espFolder = game.CoreGui:FindFirstChild("GlobalESP")
-if not espFolder then
-    espFolder = Instance.new("Folder")
-    espFolder.Name = "GlobalESP"
-    espFolder.Parent = game.CoreGui
-end
-
-local function getESPColor(player)
-	if player == game.Players.LocalPlayer then
-		return Color3.fromRGB(0, 255, 0)
-	elseif isAllyWithMe(player) then
-		return Color3.fromRGB(0, 255, 0)
-	elseif isEnemy(player) then
-		return Color3.fromRGB(255, 255, 0)
-	else
-		return Color3.fromRGB(0, 255, 0)
-	end
-end
-
-local function createESP(player)
-	if ESPs[player] then
-		ESPs[player]:Destroy()
-		ESPs[player] = nil
-	end
-
-	local char = player.Character
-	if not char then return end
-	local head = char:FindFirstChild("Head")
-	if not head then return end
-
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = player.Name
-	billboard.Adornee = head
-	billboard.Size = UDim2.new(0, 200, 0, 50)
-	billboard.AlwaysOnTop = true
-	billboard.StudsOffset = Vector3.new(0, 2, 0) 
-	billboard.Parent = espFolder
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Size = UDim2.new(1, 0, 1, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.Text = player.DisplayName -- DisplayName used
-	textLabel.TextColor3 = getESPColor(player)
-	textLabel.TextStrokeTransparency = 0
-	textLabel.Font = Enum.Font.SourceSansBold
-	textLabel.TextSize = 16
-	textLabel.Parent = billboard
-
-	ESPs[player] = billboard
-end
-
-local function removeESP(player)
-	if ESPs[player] then
-		ESPs[player]:Destroy()
-		ESPs[player] = nil
-	end
-end
-
-RunService.RenderStepped:Connect(function()
-	for player, billboard in pairs(ESPs) do
-		if billboard and billboard:FindFirstChildOfClass("TextLabel") then
-			billboard.TextLabel.TextColor3 = getESPColor(player)
-		end
-	end
-end)
-
-local function setupPlayerESP(player)
-	player.CharacterAdded:Connect(function(char)
-		task.wait(0.5) -- wait for head to exist
-		createESP(player)
-	end)
-	if player.Character then
-		task.wait(0.5)
-		createESP(player)
-	end
-end
-
-for _, p in pairs(game.Players:GetPlayers()) do
-	if p ~= game.Players.LocalPlayer then
-		setupPlayerESP(p)
-	end
-end
-
-game.Players.PlayerAdded:Connect(function(p)
-	if p ~= game.Players.LocalPlayer then
-		setupPlayerESP(p)
-	end
-end)
-
-game.Players.PlayerRemoving:Connect(removeESP)
-
-
-
--- =========================
 -- lifecycle
 -- =========================
 player.CharacterAdded:Connect(function(c)
@@ -853,30 +548,6 @@ end
 
 function AimlockModule:SetPrediction(state)
     PredictionEnabled = state
-end
-
-function AimlockModule:SetV3(state)
-    V3Enabled = state
-    if state then
-        startV3Loop()
-    else
-        stopV3Loop()
-    end
-end
-
-function AimlockModule:SetESP(state)
-    if state then
-        for _, p in pairs(game.Players:GetPlayers()) do
-            if p ~= game.Players.LocalPlayer then
-                setupPlayerESP(p)
-            end
-        end
-    else
-        for _, v in pairs(ESPs) do
-            v:Destroy()
-        end
-        ESPs = {}
-    end
 end
 
 return AimlockModule
