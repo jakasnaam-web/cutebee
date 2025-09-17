@@ -96,7 +96,6 @@ HealthPlayers.TextSize = 19.000
 HealthPlayers.TextXAlignment = Enum.TextXAlignment.Left
 HealthPlayers.TextYAlignment = Enum.TextYAlignment.Bottom
 
-
 loackplayerslabel.Name = "loackplayerslabel"
 loackplayerslabel.Parent = Profile
 loackplayerslabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -109,7 +108,6 @@ loackplayerslabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 loackplayerslabel.TextSize = 19.000
 loackplayerslabel.TextXAlignment = Enum.TextXAlignment.Left
 loackplayerslabel.TextYAlignment = Enum.TextYAlignment.Bottom
-
 
 NamePlayers.Name = "NamePlayers"
 NamePlayers.Parent = Profile
@@ -237,18 +235,8 @@ spawn(function()
     end)
 end)
 mouse.Button1Down:Connect(function()
-    pcall(function()
-        if Playersaimbot ~= nil then
-            local args = {
-              [1] = PlayersPosition,
-              [2] = game:GetService("Players"):FindFirstChild(Playersaimbot).Character.HumanoidRootPart
-            }
-        game:GetService("Players").LocalPlayer.Character[game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name].RemoteFunctionShoot:InvokeServer(unpack(args))
-    end
-    end)
-end)
 
--- Toggle lock players when button is clicked
+-- Mobile shoot on lockButton / another button
 lockButton.MouseButton1Click:Connect(function()
     if getgenv().setting['LockPlayers'] then
         loackplayerslabel.Text = "Lock Players | OFF"
@@ -258,6 +246,18 @@ lockButton.MouseButton1Click:Connect(function()
         loackplayerslabel.Text = "Lock Players | ON"
         lockButton.Text = "Lock Players: ON"
         getgenv().setting['LockPlayers'] = true
+    end
+
+    -- Shoot at current target when button clicked
+    if Playersaimbot ~= nil then
+        local args = {
+            [1] = PlayersPosition,
+            [2] = game.Players:FindFirstChild(Playersaimbot).Character.HumanoidRootPart
+        }
+        local tool = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+        if tool then
+            tool.RemoteFunctionShoot:InvokeServer(unpack(args))
+        end
     end
 end)
 
