@@ -1,157 +1,129 @@
--- aimbot: closest target within 1000 studs, no FOV circle / no UI
-
+-- nearest-only aimbot (no FOV circle, no UI)
 Playersaimbot = nil
 PlayersPosition = nil
 
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
-local currentCamera = game:GetService("Workspace").CurrentCamera
+local currentCamera = workspace.CurrentCamera
+local RunService = game:GetService("RunService")
+local mouse = localPlayer:GetMouse()
 
--- Optional global settings you already use:
--- getgenv().setting = getgenv().setting or {}
--- getgenv().setting['LockPlayers'] = getgenv().setting['LockPlayers'] or false
--- getgenv().setting['MaxRange'] = getgenv().setting['MaxRange'] or 1000
+-- Settings
+local MAX_RANGE = 1000        -- maximum range (studs) to consider
+local UPDATE_INTERVAL = 0.1   -- seconds between target scans
 
--- Ensure default max range constant (1000 as requested)
-local MAX_RANGE = 1000
-
--- Remove any leftover UI (keeps environment clean)
-pcall(function()
-    local core = game:GetService("CoreGui")
-    if core:FindFirstChild('infoplayers') then
-        core.infoplayers:Destroy()
-    end
-end)
-
--- Helper: validate a player character and humanoidrootpart
-local function validTarget(player)
-    if not player then return false end
-    if player == localPlayer then return false end
-    if not player.Character then return false end
-    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-    local hum = player.Character:FindFirstChildOfClass("Humanoid")
-    if not hrp or not hum then return false end
-    if hum.Health <= 0 then return false end
-    return true
+-- Utility: safe check for humanoidrootpart
+local function hasHRP(p)
+    if not p then return false end
+    local c = p.Character
+    if not c then return false end
+    local hrp = c:FindFirstChild("HumanoidRootPart")
+    return hrp ~= nil
 end
 
--- Selection loop: choose the closest valid player within MAX_RANGE.
+-- Find nearest player within MAX_RANGE (by distance to local player's HRP)
 spawn(function()
     while true do
-        local success, err = pcall(function()
-            local myChar = localPlayer.Character
-            if not myChar then return end
-            local myHRP = myChar:FindFirstChild("HumanoidRootPart")
-            if not myHRP then return end
-
-            local closestPlayer = nil
-            local closestDistance = math.huge
-
-            for _, pl in pairs(Players:GetPlayers()) do
-                if validTarget(pl) then
-                    local targetHRP = pl.Character:FindFirstChild("HumanoidRootPart")
-                    if targetHRP then
-                        local dist = (targetHRP.Position - myHRP.Position).magnitude
-                        if dist <= MAX_RANGE and dist < closestDistance then
-                            closestDistance = dist
-                            closestPlayer = pl
-                        end
-                    end
-                end
-            end
-
-            -- Only auto-update target if LockPlayers is false (keeps previous lock if true)
-            if closestPlayer and (not getgenv().setting or getgenv().setting['LockPlayers'] == false) then
-                Playersaimbot = closestPlayer.Name
-                PlayersPosition = closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") and closestPlayer.Character.HumanoidRootPart.Position or PlayersPosition
-                -- (Optional) enlarge HRP for easier aim like before; remove if undesired:
-                pcall(function()
-                    if closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        closestPlayer.Character.HumanoidRootPart.Size = Vector3.new(100,100,100)
-                    end
-                end)
-            end
-        end)
-        if not success then
-            -- avoid infinite spam if something weird happens
-            -- print("Selection loop error:", err)
-        end
-        wait(0.12) -- reasonable frequency; tweak lower/higher if needed
-    end
-end)
-
--- Keep target position updated (so moving targets remain accurate)
-spawn(function()
-    while true do
+        local nearest = nil
+        local nearestDist = math.huge
+        local myHRP = nil
         pcall(function()
-            if Playersaimbot then
-                local target = Players:FindFirstChild(Playersaimbot)
-                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                    PlayersPosition = target.Character.HumanoidRootPart.Position
-                else
-                    -- target lost (died/disconnected) -> clear
-                    Playersaimbot = nil
-                    PlayersPosition = nil
-                end
-            end
+            myHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
         end)
-        wait(0.08)
-    end
-end)
-
--- Namecall hook: rewrite remote args to send PlayersPosition when firing
-spawn(function()
-    local ok, gg = pcall(function() return getrawmetatable(game) end)
-    if not ok or not gg then return end
-    local old = gg.__namecall
-    setreadonly(gg,false)
-    gg.__namecall = newcclosure(function(self, ...)
-        local method = getnamecallmethod()
-        local args = {...}
-        if tostring(method) == "FireServer" then
-            -- preserve prior logic: only override when argument[1] seems to be a RemoteEvent name (string)
-            if tostring(args[1]) == "RemoteEvent" then
-                if tostring(args[2]) ~= "true" and tostring(args[2]) ~= "false" then
-                    if Playersaimbot ~= nil and PlayersPosition ~= nil then
-                        args[2] = PlayersPosition
-                        return old(self, unpack(args))
+        if myHRP then
+            for _, pl in pairs(Players:GetPlayers()) do
+                if pl ~= localPlayer and hasHRP(pl) then
+                    local ok, dist = pcall(function()
+                        return (pl.Character.HumanoidRootPart.Position - myHRP.Position).magnitude
+                    end)
+                    if ok and dist and dist <= MAX_RANGE and dist < nearestDist then
+                        nearestDist = dist
+                        nearest = pl
                     end
                 end
             end
         end
-        return old(self, ...)
-    end)
-    setreadonly(gg,true)
-end)
 
--- Mouse click: invoke tool's RemoteFunctionShoot with target position and HRP
-local mouse = localPlayer:GetMouse()
-mouse.Button1Down:Connect(function()
-    pcall(function()
-        if Playersaimbot ~= nil and PlayersPosition ~= nil then
-            local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
-            if tool and tool:FindFirstChild("RemoteFunctionShoot") and typeof(tool.RemoteFunctionShoot.InvokeServer) == "function" then
-                local targetPlayer = Players:FindFirstChild(Playersaimbot)
-                local targetHRP = targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-                local args = {
-                    [1] = PlayersPosition,
-                    [2] = targetHRP
-                }
-                tool.RemoteFunctionShoot:InvokeServer(unpack(args))
-            end
-        end
-    end)
-end)
-
--- Optional keybinds to clear target or toggle lock (keeps your prior semantics if you used them)
-game:GetService("UserInputService").InputBegan:Connect(function(io, processed)
-    if processed then return end
-    pcall(function()
-        if getgenv().setting and io.KeyCode == getgenv().setting['resetPlayersBind'] then
+        if nearest then
+            Playersaimbot = nearest                 -- store player object
+            PlayersPosition = nearest.Character.HumanoidRootPart.Position
+        else
             Playersaimbot = nil
             PlayersPosition = nil
-        elseif getgenv().setting and io.KeyCode == getgenv().setting['LockPlayersBind'] then
-            getgenv().setting['LockPlayers'] = not getgenv().setting['LockPlayers']
+        end
+
+        wait(UPDATE_INTERVAL)
+    end
+end)
+
+-- Keep PlayersPosition fresh (in case target moves)
+spawn(function()
+    while true do
+        if Playersaimbot and hasHRP(Playersaimbot) then
+            pcall(function()
+                PlayersPosition = Playersaimbot.Character.HumanoidRootPart.Position
+            end)
+        else
+            PlayersPosition = nil
+        end
+        wait(0.05)
+    end
+end)
+
+-- Namecall hook: replace the target arg with PlayersPosition when firing to server.
+spawn(function()
+    local success, mt = pcall(function() return getrawmetatable(game) end)
+    if not success or not mt then return end
+    local old = mt.__namecall
+    setreadonly(mt, false)
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        local args = {...}
+
+        -- Only change behavior for FireServer calls and only when we have a valid target position
+        if method == "FireServer" and PlayersPosition then
+            -- the original script attempted to detect a specific RemoteEvent layout.
+            -- We'll be conservative: if args[2] exists and is not a boolean/string "true"/"false"
+            -- we try replace it with PlayersPosition (common patterns for aim remotes).
+            local ok, t2 = pcall(function() return args[2] end)
+            if ok and t2 ~= nil then
+                -- skip obvious boolean/string toggles
+                if type(t2) ~= "boolean" and type(t2) ~= "string" then
+                    args[2] = PlayersPosition
+                    return old(self, unpack(args))
+                end
+            end
+        end
+
+        return old(self, ...)
+    end)
+    setreadonly(mt, true)
+end)
+
+-- Mouse click: attempt to call tool RemoteFunctionShoot (if present) using PlayersPosition and target HRP
+mouse.Button1Down:Connect(function()
+    pcall(function()
+        if Playersaimbot and PlayersPosition then
+            local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+            if tool then
+                -- robustly attempt to find either a RemoteFunction named RemoteFunctionShoot or a child named "Shoot" etc.
+                local rf = tool:FindFirstChild("RemoteFunctionShoot") or tool:FindFirstChildWhichIsA("RemoteFunction") or tool:FindFirstChild("Shoot")
+                local targetHRP = Playersaimbot.Character and Playersaimbot.Character:FindFirstChild("HumanoidRootPart")
+                if rf and targetHRP and rf.InvokeServer then
+                    local args = { PlayersPosition, targetHRP }
+                    pcall(function()
+                        rf:InvokeServer(unpack(args))
+                    end)
+                else
+                    -- fallback: try firing a remote event on the tool if present
+                    local re = tool:FindFirstChildWhichIsA("RemoteEvent")
+                    if re and targetHRP then
+                        pcall(function()
+                            re:FireServer(PlayersPosition, targetHRP)
+                        end)
+                    end
+                end
+            end
         end
     end)
 end)
