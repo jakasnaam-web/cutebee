@@ -1,443 +1,271 @@
---[[
-owner of the script: github.com/Averiias/ 
-I just editted some stuff in the "Mouse.Hit/Target" thing to make it work on blox fruits and other games so credits to him lol
-]]--
-if not game:IsLoaded() then 
-    game.Loaded:Wait()
+Playersaimbot = nil
+local mouse = game.Players.LocalPlayer:GetMouse()
+local guiservice = game.GetService(game, "GuiService")
+local players = game.GetService(game, "Players")
+local localPlayer = players.LocalPlayer
+local currentCamera = game.GetService(game, "Workspace").CurrentCamera
+local circle = Drawing.new("Circle")
+
+if game:GetService("CoreGui"):FindFirstChild('infoplayers') then 
+    game:GetService("CoreGui"):FindFirstChild('infoplayers'):Destroy()
 end
 
-if not syn or not protectgui then
-    getgenv().protectgui = function() end
+local infoplayers = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local MainCorner = Instance.new("UICorner")
+local Profile = Instance.new("Frame")
+local ProfileCorner = Instance.new("UICorner")
+local ImageProfile = Instance.new("ImageLabel")
+local ImageProfileCorner = Instance.new("UICorner")
+local HealthPlayers = Instance.new("TextLabel")
+local NamePlayers = Instance.new("TextLabel")
+local loackplayerslabel = Instance.new("TextLabel")
+local Healthbar = Instance.new("Frame")
+local HealthbarCorner = Instance.new("UICorner")
+local Healthgreen = Instance.new("Frame")
+local HealthgreenCorner = Instance.new("UICorner")
+
+infoplayers.Name = "infoplayers"
+infoplayers.Parent = game:GetService("CoreGui")
+infoplayers.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Main.Name = "Main"
+Main.Parent = infoplayers
+Main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Main.Position = UDim2.new(0.01, 0, 0.3, 0)
+Main.Size = UDim2.new(0, 263, 0, 120)
+
+-- Create Mobile GUI
+local mobileGui = Instance.new("ScreenGui")
+mobileGui.Name = "MobileAimbotGUI"
+mobileGui.Parent = game:GetService("CoreGui")
+
+-- Lock Button
+local lockButton = Instance.new("TextButton")
+lockButton.Size = UDim2.new(0, 150, 0, 50)
+lockButton.Position = UDim2.new(0.05, 0, 0.8, 0)
+lockButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+lockButton.Text = "Lock Players: OFF"
+lockButton.TextColor3 = Color3.new(1,1,1)
+lockButton.Parent = mobileGui
+
+-- Reset Button
+local resetButton = Instance.new("TextButton")
+resetButton.Size = UDim2.new(0, 150, 0, 50)
+resetButton.Position = UDim2.new(0.05, 0, 0.9, 0)
+resetButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+resetButton.Text = "Reset Target"
+resetButton.TextColor3 = Color3.new(1,1,1)
+resetButton.Parent = mobileGui
+
+MainCorner.Name = "MainCorner"
+MainCorner.Parent = Main
+
+Profile.Name = "Profile"
+Profile.Parent = Main
+Profile.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Profile.Position = UDim2.new(0.0570342205, 0, 0.149425298, 0)
+Profile.Size = UDim2.new(0, 60, 0, 60)
+
+ProfileCorner.CornerRadius = UDim.new(0, 100)
+ProfileCorner.Name = "ProfileCorner"
+ProfileCorner.Parent = Profile
+
+ImageProfile.Name = "ImageProfile"
+ImageProfile.Parent = Profile
+ImageProfile.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ImageProfile.BackgroundTransparency = 0
+ImageProfile.Position = UDim2.new(0, 1, 0, 1)
+ImageProfile.Size = UDim2.new(0, 58, 0, 58)
+ImageProfile.Image = ''
+
+ImageProfileCorner.CornerRadius = UDim.new(0, 100)
+ImageProfileCorner.Name = "ImageProfileCorner"
+ImageProfileCorner.Parent = ImageProfile
+
+HealthPlayers.Name = "HealthPlayers"
+HealthPlayers.Parent = Profile
+HealthPlayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+HealthPlayers.BackgroundTransparency = 1.000
+HealthPlayers.Position = UDim2.new(1.24220526, 0, 0.377586216, 0)
+HealthPlayers.Size = UDim2.new(0, 173, 0, 22)
+HealthPlayers.Font = Enum.Font.FredokaOne
+HealthPlayers.Text = "Health | N/A"
+HealthPlayers.TextColor3 = Color3.fromRGB(255, 255, 255)
+HealthPlayers.TextSize = 19.000
+HealthPlayers.TextXAlignment = Enum.TextXAlignment.Left
+HealthPlayers.TextYAlignment = Enum.TextYAlignment.Bottom
+
+
+loackplayerslabel.Name = "loackplayerslabel"
+loackplayerslabel.Parent = Profile
+loackplayerslabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+loackplayerslabel.BackgroundTransparency = 1.000
+loackplayerslabel.Position = UDim2.new(0.1, 0, 1.1, 0)
+loackplayerslabel.Size = UDim2.new(0, 173, 0, 22)
+loackplayerslabel.Font = Enum.Font.FredokaOne
+loackplayerslabel.Text = "Lock Players | OFF"
+loackplayerslabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+loackplayerslabel.TextSize = 19.000
+loackplayerslabel.TextXAlignment = Enum.TextXAlignment.Left
+loackplayerslabel.TextYAlignment = Enum.TextYAlignment.Bottom
+
+
+NamePlayers.Name = "NamePlayers"
+NamePlayers.Parent = Profile
+NamePlayers.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+NamePlayers.BackgroundTransparency = 1.000
+NamePlayers.Position = UDim2.new(1.24220526, 0, 0.0109195411, 0)
+NamePlayers.Size = UDim2.new(0, 173, 0, 22)
+NamePlayers.Font = Enum.Font.FredokaOne
+NamePlayers.Text = "Name | N/A"
+NamePlayers.TextColor3 = Color3.fromRGB(255, 255, 255)
+NamePlayers.TextSize = 19.000
+NamePlayers.TextXAlignment = Enum.TextXAlignment.Left
+NamePlayers.TextYAlignment = Enum.TextYAlignment.Bottom
+
+Healthbar.Name = "Healthbar"
+Healthbar.Parent = Profile
+Healthbar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Healthbar.Position = UDim2.new(1.23333335, 0, 0.850000024, 0)
+Healthbar.Size = UDim2.new(0, 155, 0, 8)
+
+HealthbarCorner.Name = "HealthbarCorner"
+HealthbarCorner.Parent = Healthbar
+
+Healthgreen.Name = "Healthgreen"
+Healthgreen.Parent = Healthbar
+Healthgreen.BackgroundColor3 = Color3.fromRGB(0, 227, 110)
+Healthgreen.Size = UDim2.new(0, 155, 0, 8)
+
+HealthgreenCorner.Name = "HealthgreenCorner"
+HealthgreenCorner.Parent = Healthgreen
+
+function updateCircle(Fov,colorCircle)
+   if circle.__OBJECT_EXISTS then
+       circle.Transparency = 1
+       circle.Visible = true
+       circle.Thickness = 2
+       circle.Color = colorCircle
+       circle.NumSides = 100
+       circle.Radius = (Fov * 6) / 2
+       circle.Filled = false
+       circle.Position = Vector2.new(mouse.X, mouse.Y + (guiservice.GetGuiInset(guiservice).Y))
+   end
 end
-
-local SilentAimSettings = {
-    Enabled = true,
-    
-    ClassName = "Universal Silent Aim",
-    ToggleKey = "RightAlt",
-    
-    TeamCheck = true,
-    VisibleCheck = false, 
-    TargetPart = "HumanoidRootPart",
-    SilentAimMethod = "Mouse.Hit/Target",
-    
-    FOVRadius = 140,
-    FOVVisible = true,
-    ShowSilentAimTarget = false, 
-    
-    MouseHitPrediction = true,
-    MouseHitPredictionAmount = 0.45,
-    HitChance = 100
-}
-
--- variables
-getgenv().SilentAimSettings = Settings
-local MainFileName = "UniversalSilentAim"
-local SelectedFile, FileToSave = "", ""
-
-local Camera = workspace.CurrentCamera
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local GuiService = game:GetService("GuiService")
-local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-
-local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-
-local GetChildren = game.GetChildren
-local GetPlayers = Players.GetPlayers
-local WorldToScreen = Camera.WorldToScreenPoint
-local WorldToViewportPoint = Camera.WorldToViewportPoint
-local GetPartsObscuringTarget = Camera.GetPartsObscuringTarget
-local FindFirstChild = game.FindFirstChild
-local RenderStepped = RunService.RenderStepped
-local GuiInset = GuiService.GetGuiInset
-local GetMouseLocation = UserInputService.GetMouseLocation
-
-local resume = coroutine.resume 
-local create = coroutine.create
-
-local ValidTargetParts = {"Head", "HumanoidRootPart"}
-local PredictionAmount = 0.45
-
-local mouse_box = Drawing.new("Square")
-mouse_box.Visible = true 
-mouse_box.ZIndex = 999 
-mouse_box.Color = Color3.fromRGB(54, 57, 241)
-mouse_box.Thickness = 20 
-mouse_box.Size = Vector2.new(20, 20)
-mouse_box.Filled = true 
-
-local fov_circle = Drawing.new("Circle")
-fov_circle.Thickness = 1
-fov_circle.NumSides = 100
-fov_circle.Radius = 180
-fov_circle.Filled = false
-fov_circle.Visible = false
-fov_circle.ZIndex = 999
-fov_circle.Transparency = 1
-fov_circle.Color = Color3.fromRGB(54, 57, 241)
-
-local ExpectedArguments = {
-    FindPartOnRayWithIgnoreList = {
-        ArgCountRequired = 3,
-        Args = {
-            "Instance", "Ray", "table", "boolean", "boolean"
-        }
-    },
-    FindPartOnRayWithWhitelist = {
-        ArgCountRequired = 3,
-        Args = {
-            "Instance", "Ray", "table", "boolean"
-        }
-    },
-    FindPartOnRay = {
-        ArgCountRequired = 2,
-        Args = {
-            "Instance", "Ray", "Instance", "boolean", "boolean"
-        }
-    },
-    Raycast = {
-        ArgCountRequired = 3,
-        Args = {
-            "Instance", "Vector3", "Vector3", "RaycastParams"
-        }
-    }
-}
-
-function CalculateChance(Percentage)
-    -- // Floor the percentage
-    Percentage = math.floor(Percentage)
-
-    -- // Get the chance
-    local chance = math.floor(Random.new().NextNumber(Random.new(), 0, 1) * 100) / 100
-
-    -- // Return
-    return chance <= Percentage / 100
-end
-
-
---[[file handling]] do 
-    if not isfolder(MainFileName) then 
-        makefolder(MainFileName);
-    end
-    
-    if not isfolder(string.format("%s/%s", MainFileName, tostring(game.PlaceId))) then 
-        makefolder(string.format("%s/%s", MainFileName, tostring(game.PlaceId)))
-    end
-end
-
-local Files = listfiles(string.format("%s/%s", "UniversalSilentAim", tostring(game.PlaceId)))
-
--- functions
-local function GetFiles() -- credits to the linoria lib for this function, listfiles returns the files full path and its annoying
-	local out = {}
-	for i = 1, #Files do
-		local file = Files[i]
-		if file:sub(-4) == '.lua' then
-			-- i hate this but it has to be done ...
-
-			local pos = file:find('.lua', 1, true)
-			local start = pos
-
-			local char = file:sub(pos, pos)
-			while char ~= '/' and char ~= '\\' and char ~= '' do
-				pos = pos - 1
-				char = file:sub(pos, pos)
-			end
-
-			if char == '/' or char == '\\' then
-				table.insert(out, file:sub(pos + 1, start - 1))
-			end
-		end
-	end
-	
-	return out
-end
-
-local function UpdateFile(FileName)
-    assert(FileName or FileName == "string", "oopsies");
-    writefile(string.format("%s/%s/%s.lua", MainFileName, tostring(game.PlaceId), FileName), HttpService:JSONEncode(SilentAimSettings))
-end
-
-local function LoadFile(FileName)
-    assert(FileName or FileName == "string", "oopsies");
-    
-    local File = string.format("%s/%s/%s.lua", MainFileName, tostring(game.PlaceId), FileName)
-    local ConfigData = HttpService:JSONDecode(readfile(File))
-    for Index, Value in next, ConfigData do
-        SilentAimSettings[Index] = Value
-    end
-end
-
-local function getPositionOnScreen(Vector)
-    local Vec3, OnScreen = WorldToScreen(Camera, Vector)
-    return Vector2.new(Vec3.X, Vec3.Y), OnScreen
-end
-
-local function ValidateArguments(Args, RayMethod)
-    local Matches = 0
-    if #Args < RayMethod.ArgCountRequired then
-        return false
-    end
-    for Pos, Argument in next, Args do
-        if typeof(Argument) == RayMethod.Args[Pos] then
-            Matches = Matches + 1
-        end
-    end
-    return Matches >= RayMethod.ArgCountRequired
-end
-
-local function getDirection(Origin, Position)
-    return (Position - Origin).Unit * 1000
-end
-
-local function getMousePosition()
-    return GetMouseLocation(UserInputService)
-end
-
-local function IsPlayerVisible(Player)
-    local PlayerCharacter = Player.Character
-    local LocalPlayerCharacter = LocalPlayer.Character
-    
-    if not (PlayerCharacter or LocalPlayerCharacter) then return end 
-    
-    local PlayerRoot = FindFirstChild(PlayerCharacter, Options.TargetPart.Value) or FindFirstChild(PlayerCharacter, "HumanoidRootPart")
-    
-    if not PlayerRoot then return end 
-    
-    local CastPoints, IgnoreList = {PlayerRoot.Position, LocalPlayerCharacter, PlayerCharacter}, {LocalPlayerCharacter, PlayerCharacter}
-    local ObscuringObjects = #GetPartsObscuringTarget(Camera, CastPoints, IgnoreList)
-    
-    return ((ObscuringObjects == 0 and true) or (ObscuringObjects > 0 and false))
-end
-
-local function getClosestPlayer()
-    if not Options.TargetPart.Value then return end
-    local Closest
-    local DistanceToMouse
-    for _, Player in next, GetPlayers(Players) do
-        if Player == LocalPlayer then continue end
-        if Toggles.TeamCheck.Value and Player.Team == LocalPlayer.Team then continue end
-
-        local Character = Player.Character
-        if not Character then continue end
-        
-        if Toggles.VisibleCheck.Value and not IsPlayerVisible(Player) then continue end
-
-        local HumanoidRootPart = FindFirstChild(Character, "HumanoidRootPart")
-        local Humanoid = FindFirstChild(Character, "Humanoid")
-        if not HumanoidRootPart or not Humanoid or Humanoid and Humanoid.Health <= 0 then continue end
-
-        local ScreenPosition, OnScreen = getPositionOnScreen(HumanoidRootPart.Position)
-        if not OnScreen then continue end
-
-        local Distance = (getMousePosition() - ScreenPosition).Magnitude
-        if Distance <= (DistanceToMouse or Options.Radius.Value or 2000) then
-            Closest = ((Options.TargetPart.Value == "Random" and Character[ValidTargetParts[math.random(1, #ValidTargetParts)]]) or Character[Options.TargetPart.Value])
-            DistanceToMouse = Distance
-        end
-    end
-    return Closest
-end
-
-function p() --join the discord server
-    syn.request(
-   {
-       Url = "http://127.0.0.1:6463/rpc?v=1",
-       Method = "POST",
-       Headers = {
-           ["Content-Type"] = "application/json",
-           ["origin"] = "https://discord.com",
-       },
-       Body = game:GetService("HttpService"):JSONEncode(
-           {
-               ["args"] = {
-                   ["code"] = "q4Ntup9v8y",
-               },
-               ["cmd"] = "INVITE_BROWSER",
-               ["nonce"] = "."
-           })
-   })
-end
-
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/DenDenZZZ/Kavo-UI-Library/main/Kavo.lua"))()
-
-local currentTheme = {
-    SchemeColor = Color3.fromRGB(0, 170, 255),  
-    Background = Color3.fromRGB(15, 15, 25),      
-    Header = Color3.fromRGB(0, 120, 215),    
-    TextColor = Color3.fromRGB(230, 240, 255),     
-    ElementColor = Color3.fromRGB(40, 40, 60)    
-}
-
-local toggleGui = Instance.new("ScreenGui")
-toggleGui.Name = "ToggleGui"
-toggleGui.Parent = game.CoreGui
-
-local toggleButton = Instance.new("ImageButton")
-toggleButton.Name = "SHV1"
-toggleButton.Size = UDim2.new(0, 40, 0, 40)
-toggleButton.Position = UDim2.new(0, 5, 0, 10)
-toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-toggleButton.BackgroundTransparency = 0.2
-toggleButton.BorderSizePixel = 0
-toggleButton.ZIndex = 9999
-toggleButton.Image = "rbxassetid://76926193047725"
-toggleButton.Parent = toggleGui
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 8)
-toggleCorner.Parent = toggleButton
-
-local aimbotFOVEnabled = false
-local aimbotNearestEnabled = false
-
-local Window = Library.CreateLib("Sapi Hub V1", currentTheme)
-
-local Tab = Window:NewTab("Aimbot")
-local Section = Tab:NewSection("Aimbot Settings")
-
-Section:NewToggle("Aimbot FOV", "Enable aimbot with FOV circle", function(state)
-    Options.aim_Enabled_KeyPicker:OnClick(function()
-        SilentAimSettings.Enabled = not SilentAimSettings.Enabled
-        
-        Toggles.aim_Enabled.Value = SilentAimSettings.Enabled
-        Toggles.aim_Enabled:SetValue(SilentAimSettings.Enabled)
-        
-        mouse_box.Visible = SilentAimSettings.Enabled
+spawn(function()
+    game.GetService(game, "RunService").RenderStepped:Connect(function()
+        pcall(function()
+        updateCircle(getgenv().setting['Fov'],getgenv().setting['Color'])
+        end)
+    end)
 end)
-
-Section:NewToggle("Aimbot Nearest", "Aim at nearest NPC", function(state)
-    SilentAimSettings.TeamCheck = Toggles.TeamCheck.Value
-end)
-
-Section:NewToggle("Visibility Check", "Prevent aimbot through walls", function(state)
-    SilentAimSettings.VisibleCheck = Toggles.VisibleCheck.Value
-end)
-
-Section:NewDropdown("Aimbot Distance Limit", "Select max distance for aimbot", {"100", "300", "500"}, function(selected)
-    SilentAimSettings.TargetPart = Options.TargetPart.Value
-end)
-
-local Tab = Window:NewTab("ESP")
-local Section = Tab:NewSection("ESP Categories")
-
-Section:NewToggle("NPC / Players ESP", "Shows NPCs and Players", function(state)
-    fov_circle.Visible = Toggles.Visible.Value
-        SilentAimSettings.FOVVisible = Toggles.Visible.Value
-end)
-
-Section:NewToggle("All Items ESP", "Shows items in RuntimeItems folder", function(state)
-    mouse_box.Visible = Toggles.MousePosition.Value 
-        SilentAimSettings.ShowSilentAimTarget = Toggles.MousePosition.Value 
-end)
-
-toggleButton.MouseButton1Click:Connect(function()
-    Library:ToggleUI()
-end)
-
-resume(create(function()
-    RenderStepped:Connect(function()
-        if Toggles.MousePosition.Value and Toggles.aim_Enabled.Value then
-            if getClosestPlayer() then 
-                local Root = getClosestPlayer().Parent.PrimaryPart or getClosestPlayer()
-                local RootToViewportPoint, IsOnScreen = WorldToViewportPoint(Camera, Root.Position);
-                -- using PrimaryPart instead because if your Target Part is "Random" it will flicker the square between the Target's Head and HumanoidRootPart (its annoying)
-                
-                mouse_box.Visible = IsOnScreen
-                mouse_box.Position = Vector2.new(RootToViewportPoint.X, RootToViewportPoint.Y)
-            else 
-                mouse_box.Visible = false 
-                mouse_box.Position = Vector2.new()
+spawn(function()
+    pcall(function()
+        while wait() do
+            for i, v in pairs(players.GetPlayers(players)) do
+                if game.Workspace.Characters:FindFirstChild(v.Name) or game.Workspace.Characters:FindFirstChild(v.DisplayName) then
+                    if v.Character:FindFirstChild('HumanoidRootPart') then
+                        local pos = currentCamera.WorldToViewportPoint(currentCamera, v.Character.HumanoidRootPart.Position)
+                        local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
+                        if magnitude < (getgenv().setting['Fov'] * 6 -8) /2 then
+                            if magnitude < math.huge then
+                                if (v.Character.HumanoidRootPart.Position-game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).magnitude <= 1000 then
+                                    if v.Name ~= game.Players.LocalPlayer.Name then
+                                        if getgenv().setting['LockPlayers'] == false then
+                                            Playersaimbot = v.Name
+                                            PlayersPosition = v.Character.HumanoidRootPart.Position
+                                            v.Character.HumanoidRootPart.Size = Vector3.new(100,100,100)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
             end
-        end
-        
-        if Toggles.Visible.Value then 
-            fov_circle.Visible = Toggles.Visible.Value
-            fov_circle.Color = Options.Color.Value
-            fov_circle.Position = getMousePosition()
         end
     end)
-end))
-
--- hooks
-local oldNamecall
-oldNamecall = hookmetamethod(game, "__namecall", newcclosure(function(...)
-    local Method = getnamecallmethod()
-    local Arguments = {...}
-    local self = Arguments[1]
-    local chance = CalculateChance(SilentAimSettings.HitChance)
-    if Toggles.aim_Enabled.Value and self == workspace and not checkcaller() and chance == true then
-        if Method == "FindPartOnRayWithIgnoreList" and Options.Method.Value == Method then
-            if ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithIgnoreList) then
-                local A_Ray = Arguments[2]
-
-                local HitPart = getClosestPlayer()
-                if HitPart then
-                    local Origin = A_Ray.Origin
-                    local Direction = getDirection(Origin, HitPart.Position)
-                    Arguments[2] = Ray.new(Origin, Direction)
-
-                    return oldNamecall(unpack(Arguments))
-                end
-            end
-        elseif Method == "FindPartOnRayWithWhitelist" and Options.Method.Value == Method then
-            if ValidateArguments(Arguments, ExpectedArguments.FindPartOnRayWithWhitelist) then
-                local A_Ray = Arguments[2]
-
-                local HitPart = getClosestPlayer()
-                if HitPart then
-                    local Origin = A_Ray.Origin
-                    local Direction = getDirection(Origin, HitPart.Position)
-                    Arguments[2] = Ray.new(Origin, Direction)
-
-                    return oldNamecall(unpack(Arguments))
-                end
-            end
-        elseif (Method == "FindPartOnRay" or Method == "findPartOnRay") and Options.Method.Value:lower() == Method:lower() then
-            if ValidateArguments(Arguments, ExpectedArguments.FindPartOnRay) then
-                local A_Ray = Arguments[2]
-
-                local HitPart = getClosestPlayer()
-                if HitPart then
-                    local Origin = A_Ray.Origin
-                    local Direction = getDirection(Origin, HitPart.Position)
-                    Arguments[2] = Ray.new(Origin, Direction)
-
-                    return oldNamecall(unpack(Arguments))
-                end
-            end
-        elseif Method == "Raycast" and Options.Method.Value == Method then
-            if ValidateArguments(Arguments, ExpectedArguments.Raycast) then
-                local A_Origin = Arguments[2]
-
-                local HitPart = getClosestPlayer()
-                if HitPart then
-                    Arguments[3] = getDirection(A_Origin, HitPart.Position)
-
-                    return oldNamecall(unpack(Arguments))
+end)
+spawn(function()
+    game.GetService(game, "RunService").RenderStepped:Connect(function()
+        if Playersaimbot ~= nil then 
+            for i,v in pairs(game.Players:GetChildren()) do
+                if v.Name == Playersaimbot then 
+                    if game.Workspace.Characters:FindFirstChild(v.Name) then
+                        NamePlayers.Text = "Name | "..v.Name
+                        HealthPlayers.Text = "Health | "..math.floor(v.Character.Humanoid.Health).."/"..v.Character.Humanoid.MaxHealth
+                        local hp = v.Character.Humanoid.Health/v.Character.Humanoid.MaxHealth
+                        pcall(function()
+                        Healthgreen:TweenSize(UDim2.new(hp,0,0,8),Enum.EasingDirection.Out,Enum.EasingStyle.Quad,0.15)
+                        end)
+                        ImageProfile.Image = game:GetService("Players"):GetUserThumbnailAsync(v.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+                    end
                 end
             end
         end
-    end
-    return oldNamecall(...)
-end))
+    end)
+end)
 
-local oldIndex = nil 
-oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, Index)
-    if self == Mouse and (Index == "Hit" or Index == "Target") then 
-        if Toggles.aim_Enabled.Value == true and Options.Method.Value == "Mouse.Hit/Target" and getClosestPlayer() then
-            local HitPart = getClosestPlayer()
-
-            return ((Toggles.Prediction.Value and (HitPart.CFrame + (HitPart.Velocity * PredictionAmount))) or (not Toggles.Prediction.Value and HitPart.CFrame))
+spawn(function()
+    while wait() do
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v.Name == Playersaimbot then
+                PlayersPosition = v.Character.HumanoidRootPart.Position
+            end
         end
     end
+end)
+spawn(function()
+    local gg = getrawmetatable(game)
+    local old = gg.__namecall
+    setreadonly(gg,false)
+    gg.__namecall = newcclosure(function(...)
+        local method = getnamecallmethod()
+        local args = {...}
+        if tostring(method) == "FireServer" then
+            if tostring(args[1]) == "RemoteEvent" then
+                if tostring(args[2]) ~= "true" and tostring(args[2]) ~= "false" then
+                    if Playersaimbot ~= nil then
+                        args[2] = PlayersPosition
+                        return old(unpack(args))
+                    end
+                end
+            end
+        end
+        return old(...)
+    end)
+end)
+mouse.Button1Down:Connect(function()
+    pcall(function()
+        if Playersaimbot ~= nil then
+            local args = {
+              [1] = PlayersPosition,
+              [2] = game:GetService("Players"):FindFirstChild(Playersaimbot).Character.HumanoidRootPart
+            }
+        game:GetService("Players").LocalPlayer.Character[game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name].RemoteFunctionShoot:InvokeServer(unpack(args))
+    end
+    end)
+end)
 
-    return oldIndex(self, Index)
-end))
+-- Toggle lock players when button is clicked
+lockButton.MouseButton1Click:Connect(function()
+    if getgenv().setting['LockPlayers'] then
+        loackplayerslabel.Text = "Lock Players | OFF"
+        lockButton.Text = "Lock Players: OFF"
+        getgenv().setting['LockPlayers'] = false
+    else
+        loackplayerslabel.Text = "Lock Players | ON"
+        lockButton.Text = "Lock Players: ON"
+        getgenv().setting['LockPlayers'] = true
+    end
+end)
 
-if getgenv().enabled == true then
-p()
-end
+-- Reset players target
+resetButton.MouseButton1Click:Connect(function()
+    Playersaimbot = nil
+    PlayersPosition = nil
+    ImageProfile.Image = ''
+    NamePlayers.Text = "Name | N/A"
+    HealthPlayers.Text = "Health | N/A"
+end)
