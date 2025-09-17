@@ -1,115 +1,157 @@
+-- aimbot: closest target within 1000 studs, no FOV circle / no UI
+
 Playersaimbot = nil
-local mouse = game.Players.LocalPlayer:GetMouse()
-local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
+PlayersPosition = nil
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
 local currentCamera = game:GetService("Workspace").CurrentCamera
 
--- Circle for FOV
-local Drawing = Drawing
-local circle = Drawing.new("Circle")
+-- Optional global settings you already use:
+-- getgenv().setting = getgenv().setting or {}
+-- getgenv().setting['LockPlayers'] = getgenv().setting['LockPlayers'] or false
+-- getgenv().setting['MaxRange'] = getgenv().setting['MaxRange'] or 1000
 
--- Remove UI entirely
-if game:GetService("CoreGui"):FindFirstChild('infoplayers') then
-    game:GetService("CoreGui").infoplayers:Destroy()
-end
+-- Ensure default max range constant (1000 as requested)
+local MAX_RANGE = 1000
 
--- Update circle function
-function updateCircle(Fov, colorCircle)
-    if circle.__OBJECT_EXISTS then
-        circle.Transparency = 1
-        circle.Visible = true
-        circle.Thickness = 2
-        circle.Color = colorCircle
-        circle.NumSides = 100
-        circle.Radius = (Fov * 6) / 2
-        circle.Filled = false
-        circle.Position = Vector2.new(mouse.X, mouse.Y + game:GetService("GuiService"):GetGuiInset().Y)
+-- Remove any leftover UI (keeps environment clean)
+pcall(function()
+    local core = game:GetService("CoreGui")
+    if core:FindFirstChild('infoplayers') then
+        core.infoplayers:Destroy()
     end
-end
-
--- Circle render
-spawn(function()
-    game:GetService("RunService").RenderStepped:Connect(function()
-        pcall(function()
-            updateCircle(getgenv().setting['Fov'], getgenv().setting['Color'])
-        end)
-    end)
 end)
 
--- Target selection
+-- Helper: validate a player character and humanoidrootpart
+local function validTarget(player)
+    if not player then return false end
+    if player == localPlayer then return false end
+    if not player.Character then return false end
+    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+    local hum = player.Character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return false end
+    if hum.Health <= 0 then return false end
+    return true
+end
+
+-- Selection loop: choose the closest valid player within MAX_RANGE.
 spawn(function()
-    pcall(function()
-        while wait() do
-            for i, v in pairs(players:GetPlayers()) do
-                if game.Workspace.Characters:FindFirstChild(v.Name) or game.Workspace.Characters:FindFirstChild(v.DisplayName) then
-                    if v.Character:FindFirstChild('HumanoidRootPart') then
-                        local pos = currentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
-                        local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
-                        if magnitude < (getgenv().setting['Fov'] * 6 - 8) / 2 then
-                            if magnitude < math.huge then
-                                if (v.Character.HumanoidRootPart.Position - localPlayer.Character.HumanoidRootPart.Position).magnitude <= 1000 then
-                                    if v.Name ~= localPlayer.Name then
-                                        if getgenv().setting['LockPlayers'] == false then
-                                            Playersaimbot = v.Name
-                                            PlayersPosition = v.Character.HumanoidRootPart.Position
-                                            v.Character.HumanoidRootPart.Size = Vector3.new(100,100,100)
-                                        end
-                                    end
-                                end
-                            end
+    while true do
+        local success, err = pcall(function()
+            local myChar = localPlayer.Character
+            if not myChar then return end
+            local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+            if not myHRP then return end
+
+            local closestPlayer = nil
+            local closestDistance = math.huge
+
+            for _, pl in pairs(Players:GetPlayers()) do
+                if validTarget(pl) then
+                    local targetHRP = pl.Character:FindFirstChild("HumanoidRootPart")
+                    if targetHRP then
+                        local dist = (targetHRP.Position - myHRP.Position).magnitude
+                        if dist <= MAX_RANGE and dist < closestDistance then
+                            closestDistance = dist
+                            closestPlayer = pl
                         end
                     end
                 end
             end
-        end
-    end)
-end)
 
--- Update target position continuously
-spawn(function()
-    while wait() do
-        for i, v in pairs(players:GetPlayers()) do
-            if v.Name == Playersaimbot then
-                PlayersPosition = v.Character.HumanoidRootPart.Position
+            -- Only auto-update target if LockPlayers is false (keeps previous lock if true)
+            if closestPlayer and (not getgenv().setting or getgenv().setting['LockPlayers'] == false) then
+                Playersaimbot = closestPlayer.Name
+                PlayersPosition = closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") and closestPlayer.Character.HumanoidRootPart.Position or PlayersPosition
+                -- (Optional) enlarge HRP for easier aim like before; remove if undesired:
+                pcall(function()
+                    if closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        closestPlayer.Character.HumanoidRootPart.Size = Vector3.new(100,100,100)
+                    end
+                end)
             end
+        end)
+        if not success then
+            -- avoid infinite spam if something weird happens
+            -- print("Selection loop error:", err)
         end
+        wait(0.12) -- reasonable frequency; tweak lower/higher if needed
     end
 end)
 
--- Hook remotes for aimbot
+-- Keep target position updated (so moving targets remain accurate)
 spawn(function()
-    local gg = getrawmetatable(game)
+    while true do
+        pcall(function()
+            if Playersaimbot then
+                local target = Players:FindFirstChild(Playersaimbot)
+                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                    PlayersPosition = target.Character.HumanoidRootPart.Position
+                else
+                    -- target lost (died/disconnected) -> clear
+                    Playersaimbot = nil
+                    PlayersPosition = nil
+                end
+            end
+        end)
+        wait(0.08)
+    end
+end)
+
+-- Namecall hook: rewrite remote args to send PlayersPosition when firing
+spawn(function()
+    local ok, gg = pcall(function() return getrawmetatable(game) end)
+    if not ok or not gg then return end
     local old = gg.__namecall
     setreadonly(gg,false)
-    gg.__namecall = newcclosure(function(...)
+    gg.__namecall = newcclosure(function(self, ...)
         local method = getnamecallmethod()
         local args = {...}
         if tostring(method) == "FireServer" then
+            -- preserve prior logic: only override when argument[1] seems to be a RemoteEvent name (string)
             if tostring(args[1]) == "RemoteEvent" then
                 if tostring(args[2]) ~= "true" and tostring(args[2]) ~= "false" then
-                    if Playersaimbot ~= nil then
+                    if Playersaimbot ~= nil and PlayersPosition ~= nil then
                         args[2] = PlayersPosition
-                        return old(unpack(args))
+                        return old(self, unpack(args))
                     end
                 end
             end
         end
-        return old(...)
+        return old(self, ...)
     end)
+    setreadonly(gg,true)
 end)
 
--- Mouse click shooting
+-- Mouse click: invoke tool's RemoteFunctionShoot with target position and HRP
+local mouse = localPlayer:GetMouse()
 mouse.Button1Down:Connect(function()
     pcall(function()
-        if Playersaimbot ~= nil then
-            local tool = localPlayer.Character:FindFirstChildOfClass("Tool")
-            if tool then
+        if Playersaimbot ~= nil and PlayersPosition ~= nil then
+            local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+            if tool and tool:FindFirstChild("RemoteFunctionShoot") and typeof(tool.RemoteFunctionShoot.InvokeServer) == "function" then
+                local targetPlayer = Players:FindFirstChild(Playersaimbot)
+                local targetHRP = targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
                 local args = {
                     [1] = PlayersPosition,
-                    [2] = players:FindFirstChild(Playersaimbot).Character.HumanoidRootPart
+                    [2] = targetHRP
                 }
                 tool.RemoteFunctionShoot:InvokeServer(unpack(args))
             end
+        end
+    end)
+end)
+
+-- Optional keybinds to clear target or toggle lock (keeps your prior semantics if you used them)
+game:GetService("UserInputService").InputBegan:Connect(function(io, processed)
+    if processed then return end
+    pcall(function()
+        if getgenv().setting and io.KeyCode == getgenv().setting['resetPlayersBind'] then
+            Playersaimbot = nil
+            PlayersPosition = nil
+        elseif getgenv().setting and io.KeyCode == getgenv().setting['LockPlayersBind'] then
+            getgenv().setting['LockPlayers'] = not getgenv().setting['LockPlayers']
         end
     end)
 end)
