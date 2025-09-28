@@ -23,19 +23,8 @@ function MessageModule:ShowMessage(text, duration)
     frame.ClipsDescendants = true
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 18) -- more rounded
+    corner.CornerRadius = UDim.new(0, 18)
     corner.Parent = frame
-
-    local shadow = Instance.new("ImageLabel")
-    shadow.Name = "Shadow"
-    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-    shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    shadow.Size = UDim2.new(1, 20, 1, 20)
-    shadow.BackgroundTransparency = 1
-    shadow.Image = "rbxassetid://1316045217"
-    shadow.ImageTransparency = 0.65
-    shadow.ZIndex = 0
-    shadow.Parent = frame
 
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -20, 1, 0)
@@ -52,18 +41,15 @@ function MessageModule:ShowMessage(text, duration)
     frame.Position = UDim2.new(1, 20, 1, -60)
     frame.BackgroundTransparency = 1
     label.TextTransparency = 1
-    shadow.ImageTransparency = 1
 
     local tweenIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         Position = UDim2.new(1, -200, 1, -60),
-        BackgroundTransparency = 1
+        BackgroundTransparency = 0.2
     })
     local tweenLabelIn = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 0})
-    local tweenShadowIn = TweenService:Create(shadow, TweenInfo.new(0.3), {ImageTransparency = 0.65})
 
     tweenIn:Play()
     tweenLabelIn:Play()
-    tweenShadowIn:Play()
 
     task.delay(duration, function()
         local tweenOut = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
@@ -71,11 +57,9 @@ function MessageModule:ShowMessage(text, duration)
             BackgroundTransparency = 1
         })
         local tweenLabelOut = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1})
-        local tweenShadowOut = TweenService:Create(shadow, TweenInfo.new(0.3), {ImageTransparency = 1})
 
         tweenOut:Play()
         tweenLabelOut:Play()
-        tweenShadowOut:Play()
 
         tweenOut.Completed:Wait()
         screenGui:Destroy()
