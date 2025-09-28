@@ -1,3 +1,4 @@
+
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -6,47 +7,77 @@ local playerGui = player:WaitForChild("PlayerGui")
 local MessageModule = {}
 
 function MessageModule:ShowMessage(text, duration)
-    duration = duration or 4 
-
+    duration = duration or 4
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Name = "SapiHubMessageGui"
+    screenGui.Name = "SapiHubNotificationGui"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.8, 0, 0, 60)
-    frame.Position = UDim2.new(0.5, 0, 0.08, 0)
-    frame.AnchorPoint = Vector2.new(0.5, 0)
-    frame.BackgroundTransparency = 1
+    frame.Size = UDim2.new(0, 280, 0, 50) -- compact notification
+    frame.Position = UDim2.new(1, -300, 1, -100) -- bottom-right
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    frame.BackgroundTransparency = 0.2
+    frame.BorderSizePixel = 0
+    frame.AnchorPoint = Vector2.new(0, 0)
     frame.Parent = screenGui
+    frame.ClipsDescendants = true
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
+
+    local shadow = Instance.new("ImageLabel")
+    shadow.Name = "Shadow"
+    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    shadow.Size = UDim2.new(1, 20, 1, 20)
+    shadow.BackgroundTransparency = 1
+    shadow.Image = "rbxassetid://1316045217"
+    shadow.ImageTransparency = 0.5
+    shadow.ZIndex = 0
+    shadow.Parent = frame
 
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 0.12
-    label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    label.BorderSizePixel = 0
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.Font = Enum.Font.GothamBold
-    label.TextSize = 20
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 16
     label.Text = text
     label.TextWrapped = true
+    label.ZIndex = 2
     label.Parent = frame
-    label.TextXAlignment = Enum.TextXAlignment.Center
-    label.TextYAlignment = Enum.TextYAlignment.Center
 
+    frame.Position = UDim2.new(1, 20, 1, -100)
+    frame.BackgroundTransparency = 1
     label.TextTransparency = 1
-    label.BackgroundTransparency = 1
-    TweenService:Create(label, TweenInfo.new(0.25), {
-        TextTransparency = 0,
-        BackgroundTransparency = 0.12
-    }):Play()
+    shadow.ImageTransparency = 1
+
+    local tweenIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -300, 1, -100),
+        BackgroundTransparency = 0.2
+    })
+    local tweenLabelIn = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 0})
+    local tweenShadowIn = TweenService:Create(shadow, TweenInfo.new(0.3), {ImageTransparency = 0.5})
+
+    tweenIn:Play()
+    tweenLabelIn:Play()
+    tweenShadowIn:Play()
 
     task.delay(duration, function()
-        local tweenOut = TweenService:Create(label, TweenInfo.new(0.25), {
-            TextTransparency = 1,
+        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 20, 1, -100),
             BackgroundTransparency = 1
         })
+        local tweenLabelOut = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1})
+        local tweenShadowOut = TweenService:Create(shadow, TweenInfo.new(0.3), {ImageTransparency = 1})
+
         tweenOut:Play()
+        tweenLabelOut:Play()
+        tweenShadowOut:Play()
+
         tweenOut.Completed:Wait()
         screenGui:Destroy()
     end)
