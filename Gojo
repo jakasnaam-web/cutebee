@@ -7,89 +7,109 @@ local MessageModule = {}
 
 function MessageModule:ShowMessage(text, duration)
     duration = duration or 4
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "SapiHubNotificationGui"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
-    -- Main Frame
-    local frame = Instance.new("Frame")  
-    frame.Size = UDim2.new(0, 200, 0, 40)   
-    frame.Position = UDim2.new(1, -220, 1, -80)   
-    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)  
-    frame.BorderSizePixel = 2 -- border line
-    frame.BorderColor3 = Color3.fromRGB(0, 170, 255) -- glowing border color
-    frame.AnchorPoint = Vector2.new(0, 0)  
-    frame.Parent = screenGui  
-    frame.ClipsDescendants = true  
+    -- Main Frame (starts off-screen to the right)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0, 200, 0, 44)
+    frame.Position = UDim2.new(1, 20, 1, -80)
+    frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    frame.BackgroundTransparency = 0 -- visible background
+    frame.BorderSizePixel = 0
+    frame.AnchorPoint = Vector2.new(0, 0)
+    frame.ClipsDescendants = true
+    frame.Parent = screenGui
 
-    local corner = Instance.new("UICorner")  
-    corner.CornerRadius = UDim.new(0, 18)  
-    corner.Parent = frame  
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = frame
 
-    -- Shadow Background
-    local shadow = Instance.new("ImageLabel")  
-    shadow.Name = "Shadow"  
-    shadow.AnchorPoint = Vector2.new(0.5, 0.5)  
-    shadow.Position = UDim2.new(0.5, 0, 0.5, 0)  
-    shadow.Size = UDim2.new(1, 30, 1, 30)  
-    shadow.BackgroundTransparency = 1  
-    shadow.Image = "rbxassetid://1316045217"  
-    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)  
-    shadow.ImageTransparency = 0.4  
-    shadow.ZIndex = 0  
-    shadow.Parent = frame  
+    -- Glowing border (UIStroke on frame)
+    local border = Instance.new("UIStroke")
+    border.Thickness = 2
+    border.Color = Color3.fromRGB(0, 170, 255)
+    border.Transparency = 0 -- visible
+    border.Parent = frame
 
-    -- Text Label
-    local label = Instance.new("TextLabel")  
-    label.Size = UDim2.new(1, -20, 1, 0)  
-    label.Position = UDim2.new(0, 10, 0, 0)  
-    label.BackgroundTransparency = 1  
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)  
-    label.Font = Enum.Font.GothamSemibold  
-    label.TextSize = 16  
-    label.Text = text  
-    label.TextWrapped = true  
-    label.ZIndex = 2  
-    label.Parent = frame  
+    -- Shadow background (soft image)
+    local shadow = Instance.new("ImageLabel")
+    shadow.Name = "Shadow"
+    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+    shadow.Size = UDim2.new(1, 28, 1, 28)
+    shadow.BackgroundTransparency = 1
+    shadow.Image = "rbxassetid://1316045217"
+    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+    shadow.ImageTransparency = 1 -- will tween in
+    shadow.ZIndex = 0
+    shadow.Parent = frame
 
-    -- Glow Effect (UIStroke with neon effect)
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 2
-    stroke.Color = Color3.fromRGB(0, 255, 170)
-    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Outline
-    stroke.Parent = label
+    -- Glow text behind (subtle colored glow)
+    local glowLabel = Instance.new("TextLabel")
+    glowLabel.Size = UDim2.new(1, -20, 1, 0)
+    glowLabel.Position = UDim2.new(0, 10, 0, 0)
+    glowLabel.BackgroundTransparency = 1
+    glowLabel.Text = text
+    glowLabel.Font = Enum.Font.GothamSemibold
+    glowLabel.TextSize = 16
+    glowLabel.TextWrapped = true
+    glowLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
+    glowLabel.TextTransparency = 1 -- tween in to a subtle value
+    glowLabel.ZIndex = 1
+    glowLabel.Parent = frame
 
-    -- Initial Transparency
-    frame.Position = UDim2.new(1, 20, 1, -80)  
-    label.TextTransparency = 1  
-    shadow.ImageTransparency = 1  
+    -- Main label on top
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 16
+    label.TextWrapped = true
+    label.Text = text
+    label.TextTransparency = 1 -- tween in
+    label.ZIndex = 2
+    label.Parent = frame
 
-    -- Tween In
-    local tweenIn = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {  
-        Position = UDim2.new(1, -220, 1, -80),  
-    })  
-    local tweenLabelIn = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 0})  
-    local tweenShadowIn = TweenService:Create(shadow, TweenInfo.new(0.3), {ImageTransparency = 0.4})  
+    -- small UIStroke on the main label for a crisp edge (no invalid enum used)
+    local textStroke = Instance.new("UIStroke")
+    textStroke.Thickness = 1
+    textStroke.Color = Color3.fromRGB(0, 170, 255)
+    textStroke.Transparency = 0.6
+    textStroke.Parent = label
 
-    tweenIn:Play()  
-    tweenLabelIn:Play()  
-    tweenShadowIn:Play()  
+    -- Tween values
+    local targetPos = UDim2.new(1, -220, 1, -80) -- final on-screen pos
+    local outPos = UDim2.new(1, 20, 1, -80)      -- off-screen pos for exit
 
-    -- Tween Out after duration
-    task.delay(duration, function()  
-        local tweenOut = TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {  
-            Position = UDim2.new(1, 20, 1, -80),  
-        })  
-        local tweenLabelOut = TweenService:Create(label, TweenInfo.new(0.3), {TextTransparency = 1})  
-        local tweenShadowOut = TweenService:Create(shadow, TweenInfo.new(0.3), {ImageTransparency = 1})  
+    local tweenInFrame = TweenService:Create(frame, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = targetPos })
+    local tweenGlowIn = TweenService:Create(glowLabel, TweenInfo.new(0.28), { TextTransparency = 0.75 })
+    local tweenLabelIn = TweenService:Create(label, TweenInfo.new(0.28), { TextTransparency = 0 })
+    local tweenShadowIn = TweenService:Create(shadow, TweenInfo.new(0.28), { ImageTransparency = 0.7 })
 
-        tweenOut:Play()  
-        tweenLabelOut:Play()  
-        tweenShadowOut:Play()  
+    tweenInFrame:Play()
+    tweenGlowIn:Play()
+    tweenLabelIn:Play()
+    tweenShadowIn:Play()
 
-        tweenOut.Completed:Wait()  
-        screenGui:Destroy()  
+    task.delay(duration, function()
+        local tweenOutFrame = TweenService:Create(frame, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Position = outPos })
+        local tweenGlowOut = TweenService:Create(glowLabel, TweenInfo.new(0.2), { TextTransparency = 1 })
+        local tweenLabelOut = TweenService:Create(label, TweenInfo.new(0.2), { TextTransparency = 1 })
+        local tweenShadowOut = TweenService:Create(shadow, TweenInfo.new(0.2), { ImageTransparency = 1 })
+
+        tweenOutFrame:Play()
+        tweenGlowOut:Play()
+        tweenLabelOut:Play()
+        tweenShadowOut:Play()
+
+        tweenOutFrame.Completed:Wait()
+        screenGui:Destroy()
     end)
 end
 
