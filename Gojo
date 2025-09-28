@@ -13,12 +13,11 @@ function MessageModule:ShowMessage(text, duration)
     screenGui.ResetOnSpawn = false
     screenGui.Parent = playerGui
 
-    -- Main Frame (starts off-screen to the right)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0, 200, 0, 44)
     frame.Position = UDim2.new(1, 20, 1, -80)
     frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    frame.BackgroundTransparency = 0 -- visible background
+    frame.BackgroundTransparency = 0 
     frame.BorderSizePixel = 0
     frame.AnchorPoint = Vector2.new(0, 0)
     frame.ClipsDescendants = true
@@ -28,14 +27,12 @@ function MessageModule:ShowMessage(text, duration)
     corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = frame
 
-    -- Glowing border (UIStroke on frame)
     local border = Instance.new("UIStroke")
     border.Thickness = 2
     border.Color = Color3.fromRGB(0, 170, 255)
-    border.Transparency = 0 -- visible
+    border.Transparency = 0 
     border.Parent = frame
 
-    -- Shadow background (soft image)
     local shadow = Instance.new("ImageLabel")
     shadow.Name = "Shadow"
     shadow.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -44,11 +41,10 @@ function MessageModule:ShowMessage(text, duration)
     shadow.BackgroundTransparency = 1
     shadow.Image = "rbxassetid://1316045217"
     shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.ImageTransparency = 1 -- will tween in
+    shadow.ImageTransparency = 1 
     shadow.ZIndex = 0
     shadow.Parent = frame
 
-    -- Glow text behind (subtle colored glow)
     local glowLabel = Instance.new("TextLabel")
     glowLabel.Size = UDim2.new(1, -20, 1, 0)
     glowLabel.Position = UDim2.new(0, 10, 0, 0)
@@ -58,11 +54,10 @@ function MessageModule:ShowMessage(text, duration)
     glowLabel.TextSize = 16
     glowLabel.TextWrapped = true
     glowLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
-    glowLabel.TextTransparency = 1 -- tween in to a subtle value
+    glowLabel.TextTransparency = 1 
     glowLabel.ZIndex = 1
     glowLabel.Parent = frame
 
-    -- Main label on top
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -20, 1, 0)
     label.Position = UDim2.new(0, 10, 0, 0)
@@ -72,20 +67,18 @@ function MessageModule:ShowMessage(text, duration)
     label.TextSize = 16
     label.TextWrapped = true
     label.Text = text
-    label.TextTransparency = 1 -- tween in
+    label.TextTransparency = 1 
     label.ZIndex = 2
     label.Parent = frame
 
-    -- small UIStroke on the main label for a crisp edge (no invalid enum used)
     local textStroke = Instance.new("UIStroke")
     textStroke.Thickness = 1
     textStroke.Color = Color3.fromRGB(0, 170, 255)
     textStroke.Transparency = 0.6
     textStroke.Parent = label
 
-    -- Tween values
-    local targetPos = UDim2.new(1, -220, 1, -80) -- final on-screen pos
-    local outPos = UDim2.new(1, 20, 1, -80)      -- off-screen pos for exit
+    local targetPos = UDim2.new(1, -220, 1, -80) 
+    local outPos = UDim2.new(1, 20, 1, -80)    
 
     local tweenInFrame = TweenService:Create(frame, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Position = targetPos })
     local tweenGlowIn = TweenService:Create(glowLabel, TweenInfo.new(0.28), { TextTransparency = 0.75 })
