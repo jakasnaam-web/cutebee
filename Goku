@@ -1,0 +1,11 @@
+local Games = loadstring(game:HttpGet("https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/Jakie"))()
+local MessageModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/Gojo"))()
+
+local URL = Games[game.PlaceId]
+
+if URL then
+    MessageModule:ShowMessage("Sapi Hub loaded Successfully in BloxFruits and Enjoy!", 4)
+    loadstring(game:HttpGet(URL))()
+else
+    MessageModule:ShowMessage("This Script Not Supported This Game", 4)
+end
