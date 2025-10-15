@@ -69,7 +69,6 @@ function MessageModule:ShowMessage(text, duration)
 	label.TextWrapped = true
 	label.TextScaled = true
 	label.Parent = frame
-	
 
 	local textStroke = Instance.new("UIStroke")
 	textStroke.Thickness = 1
@@ -119,6 +118,12 @@ function MessageModule:OpenMenu()
 	UICorner.CornerRadius = UDim.new(0, 12)
 	UICorner.Parent = MainFrame
 
+	local MainBorder = Instance.new("UIStroke")
+	MainBorder.Thickness = 2
+	MainBorder.Color = Color3.fromRGB(0, 170, 255)
+	MainBorder.Transparency = 0.2
+	MainBorder.Parent = MainFrame
+
 	local BGImage = Instance.new("ImageLabel")
 	BGImage.Size = UDim2.new(1, 0, 1, 0)
 	BGImage.BackgroundTransparency = 1
@@ -143,7 +148,7 @@ function MessageModule:OpenMenu()
 	ButtonHolder.Parent = MainFrame
 
 	local UIListLayout = Instance.new("UIListLayout")
-	UIListLayout.Padding = UDim.new(0, 8)
+	UIListLayout.Padding = UDim.new(0, 6)
 	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	UIListLayout.Parent = ButtonHolder
@@ -151,7 +156,7 @@ function MessageModule:OpenMenu()
 	local function CreateButton(name, labelText)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0, 160, 0, 36)
+		btn.Size = UDim2.new(0, 140, 0, 32)
 		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 		btn.Text = labelText
 		btn.Font = Enum.Font.GothamSemibold
@@ -165,11 +170,18 @@ function MessageModule:OpenMenu()
 		corner.CornerRadius = UDim.new(0, 8)
 		corner.Parent = btn
 
+		local stroke = Instance.new("UIStroke")
+		stroke.Thickness = 2
+		stroke.Color = Color3.fromRGB(0, 170, 255)
+		stroke.Parent = btn
+
 		btn.MouseEnter:Connect(function()
 			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
+			TweenService:Create(stroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(255, 255, 255)}):Play()
 		end)
 		btn.MouseLeave:Connect(function()
 			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+			TweenService:Create(stroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(0, 170, 255)}):Play()
 		end)
 
 		return btn
@@ -185,7 +197,7 @@ function MessageModule:OpenMenu()
 	TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 		Size = UDim2.new(0, 260, 0, 220)
 	}):Play()
-
+	
 	AimlockButton.MouseButton1Click:Connect(function()
 		MessageModule:ShowMessage("Loading Aimlock...", 3)
 		MainFrame:Destroy()
