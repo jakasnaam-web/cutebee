@@ -103,39 +103,51 @@ function MessageModule:OpenMenu()
 	ScreenGui.Name = "SapiHubSelectGui"
 	ScreenGui.ResetOnSpawn = false
 	ScreenGui.Parent = playerGui
+	
+	local glowTweenInfo = TweenInfo.new(
+	  1,
+	  Enum.EasingStyle.Sine,
+	  Enum.EasingDirection.InOut,
+	  -1,
+	  true
+	)
+
+	local function applyGlow(obj, goal)
+	  local tween = TweenService:Create(obj, glowTweenInfo, goal)
+	  tween:Play()
+	end
 
 	local MainFrame = Instance.new("Frame")
-	MainFrame.Size = UDim2.new(0, 260, 0, 220)
+	MainFrame.Size = UDim2.new(0, 115, 0, 172)
 	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 	MainFrame.BackgroundTransparency = 0.1
-	MainFrame.BorderSizePixel = 0
+	MainFrame.BorderSizePixel = 4
 	MainFrame.Visible = false
+	MainFrame.BorderColor3 = Color3.fromRGB(200, 170, 90)
 	MainFrame.Parent = ScreenGui
 
-	local MainBorder = Instance.new("UIStroke")
-	MainBorder.Thickness = 2
-	MainBorder.Color = Color3.fromRGB(0, 170, 255)
-	MainBorder.Transparency = 0.2
-	MainBorder.Parent = MainFrame
-
 	local BGImage = Instance.new("ImageLabel")
-	BGImage.Size = UDim2.new(1, 0, 1, 0)
+	BGImage.Size = UDim2.new(0, 115, 0, 172)
 	BGImage.BackgroundTransparency = 1
-	BGImage.Image = "rbxassetid://76926193047725"
+	BGImage.Image = "rbxassetid://113345612181334"
 	BGImage.ImageTransparency = 0.35
 	BGImage.ScaleType = Enum.ScaleType.Crop
+	BGImage.AnchorPoint = Vector2.new(0, 0)
 	BGImage.Parent = MainFrame
 
 	local Title = Instance.new("TextLabel")
-	Title.Size = UDim2.new(1, 0, 0, 30)
+	Title.Size = UDim2.new(0.667, 0, -0.035, 18)
 	Title.BackgroundTransparency = 1
 	Title.Text = "Choose Mode"
-	Title.Font = Enum.Font.GothamBold
-	Title.TextSize = 18
-	Title.TextColor3 = Color3.fromRGB(0, 170, 255)
+	Title.Font = Enum.Font.Antique
+	Title.TextSize = 10
+	Title.TextScaled = true
+	Title.TextColor3 = Color3.fromRGB(200, 170, 90)
 	Title.Parent = MainFrame
+	
+	applyGlow(Title, {TextColor3 = Color3.fromRGB(255,215,100)})
 
 	local ButtonHolder = Instance.new("Frame")
 	ButtonHolder.Size = UDim2.new(1, 0, 1, -40)
@@ -164,9 +176,11 @@ function MessageModule:OpenMenu()
 
 		local stroke = Instance.new("UIStroke")
 		stroke.Thickness = 2
-		stroke.Color = Color3.fromRGB(0, 170, 255)
+		stroke.Color = Color3.fromRGB(255,180,30)
 		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		stroke.Parent = btn
+		
+		applyGlow(stroke, {ApplyStrokeMode = Color3.fromRGB(255,215,100)})
 
 		btn.MouseEnter:Connect(function()
 			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
