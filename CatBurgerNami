@@ -98,6 +98,17 @@ function MessageModule:OpenMenu()
 	local SilentAimURL = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/DragonFruit"
 	local AimlockNoFeatures = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/LeoFruit"
 	local SilentAimNoFeatures = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/YetiFruit"
+	
+	local support = {
+		hookmetamethod = typeof(hookmetamethod) == "function",
+		hookfunction = typeof(hookfunction) == "function",
+		sethiddenproperty = typeof(sethiddenproperty) == "function",
+		getrawmetatable = typeof(getrawmetatable) == "function"
+	}
+
+	local function getSupportText(name)
+		return support[name] and " Supported" or " Not Supported"
+	end
 
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "SapiHubSelectGui"
@@ -199,6 +210,11 @@ function MessageModule:OpenMenu()
 	local SilentAimButton = CreateButton("SilentAimButton", "Silent Aim")
 	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", "Aimlock (No Features)")
 	local SilentAimNoFeaturesButton = CreateButton("SilentAimNoFeaturesButton", "Silent Aim (No Features)")
+	
+	AimlockButton.Text = "Aimlock\n" .. getSupportText("hookmetamethod")
+	SilentAimButton.Text = "Silent Aim\n" .. getSupportText("hookfunction")
+	AimlockNoFeaturesButton.Text = "Aimlock (No Features)\n" .. getSupportText("sethiddenproperty")
+	SilentAimNoFeaturesButton.Text = "Silent Aim (No Features)\n" .. getSupportText("getrawmetatable")
 
 	MainFrame.Visible = true
 	MainFrame.Size = UDim2.new(0, 0, 0, 0)
