@@ -52,6 +52,8 @@ function MessageModule:ShowMessage(text, duration)
 	glowLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
 	glowLabel.TextTransparency = 1
 	glowLabel.ZIndex = 1
+	glowLabel.TextWrapped = true
+	glowLabel.TextScaled = true
 	glowLabel.Parent = frame
 
 	local label = Instance.new("TextLabel")
@@ -64,7 +66,10 @@ function MessageModule:ShowMessage(text, duration)
 	label.Text = text
 	label.TextTransparency = 1
 	label.ZIndex = 2
+	label.TextWrapped = true
+	label.TextScaled = true
 	label.Parent = frame
+	
 
 	local textStroke = Instance.new("UIStroke")
 	textStroke.Thickness = 1
@@ -134,13 +139,15 @@ function MessageModule:OpenMenu()
 	local function CreateButton(name, yPos, labelText)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0, 240, 0, 50)
-		btn.Position = UDim2.new(0.5, -120, 0, yPos)
+		btn.Size = UDim2.new(0, 200, 0, 40)
+		btn.Position = UDim2.new(0.5, -100, 0, yPos)
 		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 		btn.Text = labelText
 		btn.Font = Enum.Font.GothamSemibold
 		btn.TextSize = 16
 		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.TextScaled = true
+		btn.TextWrapped = true
 		btn.Parent = MainFrame
 
 		local corner = Instance.new("UICorner")
@@ -156,7 +163,7 @@ function MessageModule:OpenMenu()
 
 		return btn
 	end
-
+	
 	local AimlockButton = CreateButton("AimlockButton", 60, "Aimlock")
 	local SilentAimButton = CreateButton("SilentAimButton", 120, "Silent Aim")
 	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", 180, "Aimlock(NoFeatures)")
