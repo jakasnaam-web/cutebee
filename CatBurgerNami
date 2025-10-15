@@ -219,10 +219,10 @@ function MessageModule:OpenMenu()
 	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", "Aimlock (No Features)")
 	local SilentAimNoFeaturesButton = CreateButton("SilentAimNoFeaturesButton", "Silent Aim (No Features)")
 	
-	AimlockButton.Text = "Aimlock\n" .. executor ":" .. getSupportText("hookmetamethod")
-	SilentAimButton.Text = "Silent Aim\n" .. executor ":" .. getSupportText("hookfunction")
-	AimlockNoFeaturesButton.Text = "Aimlock (No Features)\n" .. executor ":" .. getSupportText("sethiddenproperty")
-	SilentAimNoFeaturesButton.Text = "Silent Aim (No Features)\n" .. executor ":" .. getSupportText("getrawmetatable")
+	AimlockButton.Text = "Aimlock\n" .. executor .. ": " .. getSupportText("hookmetamethod")
+	SilentAimButton.Text = "Silent Aim\n" .. executor .. ": " .. getSupportText("hookfunction")
+	AimlockNoFeaturesButton.Text = "Aimlock (No Features)\n" .. executor .. ": " .. getSupportText("sethiddenproperty")
+	SilentAimNoFeaturesButton.Text = "Silent Aim (No Features)\n" .. executor .. ": " .. getSupportText("getrawmetatable")
 
 	MainFrame.Visible = true
 	MainFrame.Size = UDim2.new(0, 0, 0, 0)
