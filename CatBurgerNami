@@ -114,10 +114,6 @@ function MessageModule:OpenMenu()
 	MainFrame.Visible = false
 	MainFrame.Parent = ScreenGui
 
-	local UICorner = Instance.new("UICorner")
-	UICorner.CornerRadius = UDim.new(0, 12)
-	UICorner.Parent = MainFrame
-
 	local MainBorder = Instance.new("UIStroke")
 	MainBorder.Thickness = 2
 	MainBorder.Color = Color3.fromRGB(0, 170, 255)
@@ -166,13 +162,10 @@ function MessageModule:OpenMenu()
 		btn.TextWrapped = true
 		btn.Parent = ButtonHolder
 
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0, 8)
-		corner.Parent = btn
-
 		local stroke = Instance.new("UIStroke")
 		stroke.Thickness = 2
 		stroke.Color = Color3.fromRGB(0, 170, 255)
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		stroke.Parent = btn
 
 		btn.MouseEnter:Connect(function()
