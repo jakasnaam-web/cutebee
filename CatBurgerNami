@@ -1,0 +1,236 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local MessageModule = {}
+
+function MessageModule:ShowMessage(text, duration)
+	duration = duration or 4
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "SapiHubNotificationGui"
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = playerGui
+
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 200, 0, 44)
+	frame.Position = UDim2.new(1, 20, 1, -80)
+	frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+	frame.BorderSizePixel = 0
+	frame.AnchorPoint = Vector2.new(0, 0)
+	frame.ClipsDescendants = true
+	frame.Parent = screenGui
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 12)
+	corner.Parent = frame
+
+	local border = Instance.new("UIStroke")
+	border.Thickness = 2
+	border.Color = Color3.fromRGB(0, 170, 255)
+	border.Parent = frame
+
+	local shadow = Instance.new("ImageLabel")
+	shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+	shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+	shadow.Size = UDim2.new(1, 28, 1, 28)
+	shadow.BackgroundTransparency = 1
+	shadow.Image = "rbxassetid://1316045217"
+	shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+	shadow.ImageTransparency = 1
+	shadow.ZIndex = 0
+	shadow.Parent = frame
+
+	local glowLabel = Instance.new("TextLabel")
+	glowLabel.Size = UDim2.new(1, -20, 1, 0)
+	glowLabel.Position = UDim2.new(0, 10, 0, 0)
+	glowLabel.BackgroundTransparency = 1
+	glowLabel.Text = text
+	glowLabel.Font = Enum.Font.GothamSemibold
+	glowLabel.TextSize = 16
+	glowLabel.TextColor3 = Color3.fromRGB(0, 170, 255)
+	glowLabel.TextTransparency = 1
+	glowLabel.ZIndex = 1
+	glowLabel.Parent = frame
+
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.new(1, -20, 1, 0)
+	label.Position = UDim2.new(0, 10, 0, 0)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.Font = Enum.Font.GothamSemibold
+	label.TextSize = 16
+	label.Text = text
+	label.TextTransparency = 1
+	label.ZIndex = 2
+	label.Parent = frame
+
+	local textStroke = Instance.new("UIStroke")
+	textStroke.Thickness = 1
+	textStroke.Color = Color3.fromRGB(0, 170, 255)
+	textStroke.Transparency = 0.6
+	textStroke.Parent = label
+
+	local targetPos = UDim2.new(1, -220, 1, -80)
+	local outPos = UDim2.new(1, 20, 1, -80)
+	TweenService:Create(frame, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = targetPos}):Play()
+	TweenService:Create(glowLabel, TweenInfo.new(0.28), {TextTransparency = 0.75}):Play()
+	TweenService:Create(label, TweenInfo.new(0.28), {TextTransparency = 0}):Play()
+	TweenService:Create(shadow, TweenInfo.new(0.28), {ImageTransparency = 0.7}):Play()
+
+	task.delay(duration, function()
+		TweenService:Create(frame, TweenInfo.new(0.28, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = outPos}):Play()
+		TweenService:Create(glowLabel, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+		TweenService:Create(label, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+		TweenService:Create(shadow, TweenInfo.new(0.2), {ImageTransparency = 1}):Play()
+		task.wait(0.28)
+		screenGui:Destroy()
+	end)
+end
+
+function MessageModule:OpenMenu()
+	local AimlockURL = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/KitsuneFruit"
+	local SilentAimURL = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/DragonFruit"
+	local AimlockNoFeatures = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/LeoFruit"
+	local SilentAimNoFeatures = "https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/YetiFruit"
+
+	local ScreenGui = Instance.new("ScreenGui")
+	ScreenGui.Name = "SapiHubSelectGui"
+	ScreenGui.ResetOnSpawn = false
+	ScreenGui.Parent = playerGui
+
+	local MainFrame = Instance.new("Frame")
+	MainFrame.Size = UDim2.new(0, 300, 0, 240)
+	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+	MainFrame.BackgroundTransparency = 0.1
+	MainFrame.BorderSizePixel = 0
+	MainFrame.Visible = false
+	MainFrame.Parent = ScreenGui
+
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = UDim.new(0, 16)
+	UICorner.Parent = MainFrame
+
+	local BGImage = Instance.new("ImageLabel")
+	BGImage.Size = UDim2.new(1, 0, 1, 0)
+	BGImage.BackgroundTransparency = 1
+	BGImage.Image = "rbxassetid://76926193047725"
+	BGImage.ImageTransparency = 0.3
+	BGImage.ScaleType = Enum.ScaleType.Crop
+	BGImage.Parent = MainFrame
+
+	local Title = Instance.new("TextLabel")
+	Title.Size = UDim2.new(1, 0, 0, 40)
+	Title.BackgroundTransparency = 1
+	Title.Text = "Choose Mode"
+	Title.Font = Enum.Font.GothamBold
+	Title.TextSize = 20
+	Title.TextColor3 = Color3.fromRGB(0, 170, 255)
+	Title.Parent = MainFrame
+
+	local function CreateButton(name, xPos, yPos, labelText)
+		local btn = Instance.new("TextButton")
+		btn.Name = name
+		btn.Size = UDim2.new(0, 240, 0, 50)
+		btn.Position = UDim2.new(0.5, -120, 0, yPos)
+		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		btn.Text = labelText
+		btn.Font = Enum.Font.GothamSemibold
+		btn.TextSize = 16
+		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.Parent = MainFrame
+
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0, 10)
+		corner.Parent = btn
+
+		btn.MouseEnter:Connect(function()
+			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
+		end)
+		btn.MouseLeave:Connect(function()
+			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+		end)
+
+		return btn
+	end
+
+	local AimlockButton = CreateButton("AimlockButton", 60, "Aimlock")
+	local SilentAimButton = CreateButton("SilentAimButton", 120, "Silent Aim")
+	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", 180, "Aimlock(NoFeatures)")
+	local SilentAimNoFeaturesButton = CreateButton("SilentAimNoFeaturesButton", 240, "Silent Aim(NoFeatures)")
+
+	MainFrame.Visible = true
+	MainFrame.Size = UDim2.new(0, 0, 0, 0)
+	TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, 300, 0, 240)
+	}):Play()
+
+	AimlockButton.MouseButton1Click:Connect(function()
+		MessageModule:ShowMessage("Loading Aimlock...", 3)
+		MainFrame:Destroy()
+		local success, err = pcall(function()
+			local AimlockList = loadstring(game:HttpGet(AimlockURL))()
+			local gameId = game.PlaceId
+			local scriptUrl = AimlockList[gameId]
+			if scriptUrl then
+				loadstring(game:HttpGet(scriptUrl))()
+			else
+				MessageModule:ShowMessage("Unsupported Game!", 3)
+			end
+		end)
+		if not success then warn("Aimlock failed:", err) end
+	end)
+	
+	AimlockNoFeaturesButton.MouseButton1Click:Connect(function()
+		MessageModule:ShowMessage("Loading Aimlock(NoFeatures)...", 3)
+		MainFrame:Destroy()
+		local success, err = pcall(function()
+			local AimlockList = loadstring(game:HttpGet(AimlockURL))()
+			local gameId = game.PlaceId
+			local scriptUrl = AimlockList[gameId]
+			if scriptUrl then
+				loadstring(game:HttpGet(scriptUrl))()
+			else
+				MessageModule:ShowMessage("Unsupported Game!", 3)
+			end
+		end)
+		if not success then warn("AimlockNoFeatures failed:", err) end
+	end)
+
+	SilentAimButton.MouseButton1Click:Connect(function()
+		MessageModule:ShowMessage("Loading SilentAim...", 3)
+		MainFrame:Destroy()
+		local success, err = pcall(function()
+			local SilentAimList = loadstring(game:HttpGet(SilentAimURL))()
+			local gameId = game.PlaceId
+			local scriptUrl = SilentAimList[gameId]
+			if scriptUrl then
+				loadstring(game:HttpGet(scriptUrl))()
+			else
+				MessageModule:ShowMessage("Unsupported Game!", 3)
+			end
+		end)
+		if not success then warn("SilentAim failed:", err) end
+	end)
+	
+	SilentAimNoFeaturesButton.MouseButton1Click:Connect(function()
+		MessageModule:ShowMessage("Loading SilentAim(NoFeatures)...", 3)
+		MainFrame:Destroy()
+		local success, err = pcall(function()
+			local SilentAimList = loadstring(game:HttpGet(SilentAimURL))()
+			local gameId = game.PlaceId
+			local scriptUrl = SilentAimList[gameId]
+			if scriptUrl then
+				loadstring(game:HttpGet(scriptUrl))()
+			else
+				MessageModule:ShowMessage("Unsupported Game!", 3)
+			end
+		end)
+		if not success then warn("SilentAimNoFeatures failed:", err) end
+	end)
+end
+
+return MessageModule
