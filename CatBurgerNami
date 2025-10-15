@@ -127,6 +127,8 @@ function MessageModule:OpenMenu()
 	MainFrame.Visible = false
 	MainFrame.BorderColor3 = Color3.fromRGB(200, 170, 90)
 	MainFrame.Parent = ScreenGui
+	
+	applyGlow(MainFrame, {BorderColor3 = Color3.fromRGB(255,215,100)})
 
 	local BGImage = Instance.new("ImageLabel")
 	BGImage.Size = UDim2.new(0, 115, 0, 172)
@@ -165,22 +167,17 @@ function MessageModule:OpenMenu()
 		local btn = Instance.new("TextButton")
 		btn.Name = name
 		btn.Size = UDim2.new(0, 140, 0, 32)
-		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		btn.BackgroundColor3 = Color3.fromRGB(80, 50, 30)
 		btn.Text = labelText
 		btn.Font = Enum.Font.GothamSemibold
+		btn.BorderColor3 = Color3.fromRGB(200, 170, 90)
 		btn.TextSize = 14
-		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.TextColor3 = Color3.fromRGB(255, 230, 180)
 		btn.TextScaled = true
 		btn.TextWrapped = true
 		btn.Parent = ButtonHolder
-
-		local stroke = Instance.new("UIStroke")
-		stroke.Thickness = 2
-		stroke.Color = Color3.fromRGB(255,180,30)
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		stroke.Parent = btn
 		
-		applyGlow(stroke, {ApplyStrokeMode = Color3.fromRGB(255,215,100)})
+		applyGlow(btn, {BorderColor3 = Color3.fromRGB(255,215,100)})
 
 		btn.MouseEnter:Connect(function()
 			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
