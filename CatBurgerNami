@@ -131,7 +131,7 @@ function MessageModule:OpenMenu()
 	Title.TextColor3 = Color3.fromRGB(0, 170, 255)
 	Title.Parent = MainFrame
 
-	local function CreateButton(name, xPos, yPos, labelText)
+	local function CreateButton(name, yPos, labelText)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
 		btn.Size = UDim2.new(0, 240, 0, 50)
