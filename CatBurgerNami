@@ -125,6 +125,7 @@ function MessageModule:OpenMenu()
 	MainFrame.BackgroundTransparency = 0.1
 	MainFrame.BorderSizePixel = 4
 	MainFrame.Visible = false
+	MainFrame.ClipsDescendants = true
 	MainFrame.BorderColor3 = Color3.fromRGB(200, 170, 90)
 	MainFrame.Parent = ScreenGui
 	
