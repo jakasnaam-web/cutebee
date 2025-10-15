@@ -226,9 +226,9 @@ function MessageModule:OpenMenu()
 		MessageModule:ShowMessage("Loading Aimlock(NoFeatures)...", 3)
 		MainFrame:Destroy()
 		local success, err = pcall(function()
-			local AimlockList = loadstring(game:HttpGet(AimlockURL))()
+			local AimlockNoFeaturesList = loadstring(game:HttpGet(AimlockNoFeatures))()
 			local gameId = game.PlaceId
-			local scriptUrl = AimlockList[gameId]
+			local scriptUrl = AimlockNoFeaturesList[gameId]
 			if scriptUrl then
 				loadstring(game:HttpGet(scriptUrl))()
 			else
@@ -258,9 +258,9 @@ function MessageModule:OpenMenu()
 		MessageModule:ShowMessage("Loading SilentAim(NoFeatures)...", 3)
 		MainFrame:Destroy()
 		local success, err = pcall(function()
-			local SilentAimList = loadstring(game:HttpGet(SilentAimURL))()
+			local SilentAimNoFeaturesList = loadstring(game:HttpGet(SilentAimNoFeatures))()
 			local gameId = game.PlaceId
-			local scriptUrl = SilentAimList[gameId]
+			local scriptUrl = SilentAimNoFeaturesList[gameId]
 			if scriptUrl then
 				loadstring(game:HttpGet(scriptUrl))()
 			else
