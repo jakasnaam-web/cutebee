@@ -105,7 +105,7 @@ function MessageModule:OpenMenu()
 		sethiddenproperty = typeof(sethiddenproperty) == "function",
 		getrawmetatable = typeof(getrawmetatable) == "function"
 	}
-	
+
 	local executor = "Unknown"
 	if getexecutorname then
 	    local success, execName = pcall(getexecutorname)
@@ -114,16 +114,32 @@ function MessageModule:OpenMenu()
 	    end
 	end
 
-	local function getSupportText(name)
-		return support[name] and " Supported" or " Not Supported"
+	local function supportsAll()
+		for name, has in pairs(support) do
+			if not has then
+				return false
+			end
+		end
+		return true
 	end
-	
-	local safeExecutor = executor or "Unknown"
-	local function safeSupport(name)
-		local ok, result = pcall(function()
-			return getSupportText(name)
-		end)
-		return ok and result or " Not Supported"
+
+	local function supportsPartial(required)
+		for _, name in ipairs(required) do
+			if not support[name] then
+				return false
+			end
+		end
+		return true
+	end
+
+	local function getButtonStatus(mode)
+		if mode == "Aimlock" or mode == "SilentAim" then
+			return supportsAll() and "Supported" or "Not Supported"
+		elseif mode == "AimlockNoFeatures" then
+			return supportsPartial({"hookmetamethod"}) and "Supported" or "Not Supported"
+		elseif mode == "SilentAimNoFeatures" then
+			return supportsPartial({"getrawmetatable"}) and "Supported" or "Not Supported"
+		end
 	end
 
 	local ScreenGui = Instance.new("ScreenGui")
@@ -227,10 +243,10 @@ function MessageModule:OpenMenu()
 	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", "Aimlock (No Features)")
 	local SilentAimNoFeaturesButton = CreateButton("SilentAimNoFeaturesButton", "Silent Aim (No Features)")
 	
-	AimlockButton.Text = "Aimlock\n" .. safeExecutor .. ": " .. safeSupport("hookmetamethod")
-	SilentAimButton.Text = "Silent Aim\n" .. safeExecutor .. ": " .. safeSupport("hookfunction")
-	AimlockNoFeaturesButton.Text = "Aimlock (No Features)\n" .. safeExecutor .. ": " .. safeSupport("sethiddenproperty")
-	SilentAimNoFeaturesButton.Text = "Silent Aim (No Features)\n" .. safeExecutor .. ": " .. safeSupport("getrawmetatable")
+	AimlockButton.Text = "Aimlock\n" .. executor .. ": " .. getButtonStatus("Aimlock")
+	SilentAimButton.Text = "Silent Aim\n" .. executor .. ": " .. getButtonStatus("SilentAim")
+	AimlockNoFeaturesButton.Text = "Aimlock (No Features)\n" .. executor .. ": " .. getButtonStatus("AimlockNoFeatures")
+	SilentAimNoFeaturesButton.Text = "Silent Aim (No Features)\n" .. executor .. ": " .. getButtonStatus("SilentAimNoFeatures")
 
 	MainFrame.Visible = true
 	MainFrame.Size = UDim2.new(0, 0, 0, 0)
