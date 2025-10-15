@@ -118,7 +118,7 @@ function MessageModule:OpenMenu()
 	end
 
 	local MainFrame = Instance.new("Frame")
-	MainFrame.Size = UDim2.new(0, 115, 0, 172)
+	MainFrame.Size = UDim2.new(0, 145, 0, 244)
 	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -131,7 +131,7 @@ function MessageModule:OpenMenu()
 	applyGlow(MainFrame, {BorderColor3 = Color3.fromRGB(255,215,100)})
 
 	local BGImage = Instance.new("ImageLabel")
-	BGImage.Size = UDim2.new(0, 115, 0, 172)
+	BGImage.Size = UDim2.new(0, 147, 0, 246)
 	BGImage.BackgroundTransparency = 1
 	BGImage.Image = "rbxassetid://113345612181334"
 	BGImage.ImageTransparency = 0.35
@@ -140,7 +140,8 @@ function MessageModule:OpenMenu()
 	BGImage.Parent = MainFrame
 
 	local Title = Instance.new("TextLabel")
-	Title.Size = UDim2.new(0.667, 0, -0.035, 18)
+	Title.Size = UDim2.new(0.667, 0, 0.031, 18)
+	Title.Position = UDim2.new(0.163, 0, 0.111, 0)
 	Title.BackgroundTransparency = 1
 	Title.Text = "Choose Mode"
 	Title.Font = Enum.Font.Antique
@@ -152,13 +153,13 @@ function MessageModule:OpenMenu()
 	applyGlow(Title, {TextColor3 = Color3.fromRGB(255,215,100)})
 
 	local ButtonHolder = Instance.new("Frame")
-	ButtonHolder.Size = UDim2.new(1, 0, 1, -40)
-	ButtonHolder.Position = UDim2.new(0, 0, 0, 40)
+	ButtonHolder.Size = UDim2.new(1, 0, 0.853, -40)
+	ButtonHolder.Position = UDim2.new(0, 0, 0, 76)
 	ButtonHolder.BackgroundTransparency = 1
 	ButtonHolder.Parent = MainFrame
 
 	local UIListLayout = Instance.new("UIListLayout")
-	UIListLayout.Padding = UDim.new(0, 6)
+	UIListLayout.Padding = UDim.new(0, 10)
 	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	UIListLayout.Parent = ButtonHolder
@@ -166,7 +167,7 @@ function MessageModule:OpenMenu()
 	local function CreateButton(name, labelText)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0, 140, 0, 32)
+		btn.Size = UDim2.new(0, 78, 0, 26)
 		btn.BackgroundColor3 = Color3.fromRGB(80, 50, 30)
 		btn.Text = labelText
 		btn.Font = Enum.Font.GothamSemibold
@@ -180,12 +181,12 @@ function MessageModule:OpenMenu()
 		applyGlow(btn, {BorderColor3 = Color3.fromRGB(255,215,100)})
 
 		btn.MouseEnter:Connect(function()
-			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 170, 255)}):Play()
-			TweenService:Create(stroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(255, 255, 255)}):Play()
+			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 40, 20)}):Play()
+			TweenService:Create(btn, TweenInfo.new(0.15), {BorderColor3 = Color3.fromRGB(255, 255, 255)}):Play()
 		end)
 		btn.MouseLeave:Connect(function()
-			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
-			TweenService:Create(stroke, TweenInfo.new(0.15), {Color = Color3.fromRGB(0, 170, 255)}):Play()
+			TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(80, 50, 30)}):Play()
+			TweenService:Create(btn, TweenInfo.new(0.15), {BorderColor3 = Color3.fromRGB(200, 170, 90)}):Play()
 		end)
 
 		return btn
