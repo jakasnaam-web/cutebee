@@ -106,7 +106,7 @@ function MessageModule:OpenMenu()
 	ScreenGui.Parent = playerGui
 
 	local MainFrame = Instance.new("Frame")
-	MainFrame.Size = UDim2.new(0, 300, 0, 240)
+	MainFrame.Size = UDim2.new(0, 260, 0, 220)
 	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -116,42 +116,53 @@ function MessageModule:OpenMenu()
 	MainFrame.Parent = ScreenGui
 
 	local UICorner = Instance.new("UICorner")
-	UICorner.CornerRadius = UDim.new(0, 16)
+	UICorner.CornerRadius = UDim.new(0, 12)
 	UICorner.Parent = MainFrame
 
 	local BGImage = Instance.new("ImageLabel")
 	BGImage.Size = UDim2.new(1, 0, 1, 0)
 	BGImage.BackgroundTransparency = 1
 	BGImage.Image = "rbxassetid://76926193047725"
-	BGImage.ImageTransparency = 0.3
+	BGImage.ImageTransparency = 0.35
 	BGImage.ScaleType = Enum.ScaleType.Crop
 	BGImage.Parent = MainFrame
 
 	local Title = Instance.new("TextLabel")
-	Title.Size = UDim2.new(1, 0, 0, 40)
+	Title.Size = UDim2.new(1, 0, 0, 30)
 	Title.BackgroundTransparency = 1
 	Title.Text = "Choose Mode"
 	Title.Font = Enum.Font.GothamBold
-	Title.TextSize = 20
+	Title.TextSize = 18
 	Title.TextColor3 = Color3.fromRGB(0, 170, 255)
 	Title.Parent = MainFrame
 
-	local function CreateButton(name, yPos, labelText)
+	local ButtonHolder = Instance.new("Frame")
+	ButtonHolder.Size = UDim2.new(1, 0, 1, -40)
+	ButtonHolder.Position = UDim2.new(0, 0, 0, 40)
+	ButtonHolder.BackgroundTransparency = 1
+	ButtonHolder.Parent = MainFrame
+
+	local UIListLayout = Instance.new("UIListLayout")
+	UIListLayout.Padding = UDim.new(0, 8)
+	UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	UIListLayout.Parent = ButtonHolder
+
+	local function CreateButton(name, labelText)
 		local btn = Instance.new("TextButton")
 		btn.Name = name
-		btn.Size = UDim2.new(0, 200, 0, 40)
-		btn.Position = UDim2.new(0.5, -100, 0, yPos)
+		btn.Size = UDim2.new(0, 160, 0, 36)
 		btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 		btn.Text = labelText
 		btn.Font = Enum.Font.GothamSemibold
-		btn.TextSize = 16
+		btn.TextSize = 14
 		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		btn.TextScaled = true
 		btn.TextWrapped = true
-		btn.Parent = MainFrame
+		btn.Parent = ButtonHolder
 
 		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0, 10)
+		corner.CornerRadius = UDim.new(0, 8)
 		corner.Parent = btn
 
 		btn.MouseEnter:Connect(function()
@@ -163,16 +174,16 @@ function MessageModule:OpenMenu()
 
 		return btn
 	end
-	
-	local AimlockButton = CreateButton("AimlockButton", 60, "Aimlock")
-	local SilentAimButton = CreateButton("SilentAimButton", 120, "Silent Aim")
-	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", 180, "Aimlock(NoFeatures)")
-	local SilentAimNoFeaturesButton = CreateButton("SilentAimNoFeaturesButton", 240, "Silent Aim(NoFeatures)")
+
+	local AimlockButton = CreateButton("AimlockButton", "Aimlock")
+	local SilentAimButton = CreateButton("SilentAimButton", "Silent Aim")
+	local AimlockNoFeaturesButton = CreateButton("AimlockNoFeaturesButton", "Aimlock (No Features)")
+	local SilentAimNoFeaturesButton = CreateButton("SilentAimNoFeaturesButton", "Silent Aim (No Features)")
 
 	MainFrame.Visible = true
 	MainFrame.Size = UDim2.new(0, 0, 0, 0)
 	TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-		Size = UDim2.new(0, 300, 0, 240)
+		Size = UDim2.new(0, 260, 0, 220)
 	}):Play()
 
 	AimlockButton.MouseButton1Click:Connect(function()
