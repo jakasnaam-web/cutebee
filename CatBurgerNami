@@ -103,7 +103,13 @@ function MessageModule:OpenMenu()
 		hookmetamethod = typeof(hookmetamethod) == "function",
 		hookfunction = typeof(hookfunction) == "function",
 		sethiddenproperty = typeof(sethiddenproperty) == "function",
-		getrawmetatable = typeof(getrawmetatable) == "function"
+		getrawmetatable = typeof(getrawmetatable) == "function",
+		getrenv = typeof(getrenv) == "function",
+		httpservice = pcall(function() return game:GetService("HttpService") end),
+		getnamecallmethod = typeof(getnamecallmethod) == "function",
+		_namecall = _namecall ~= nil,
+		_G = _G ~= nil,
+		setreadonly = typeof(setreadonly) == "function"
 	}
 
 	local executor = "Unknown"
