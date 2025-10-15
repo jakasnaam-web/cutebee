@@ -139,10 +139,8 @@ function MessageModule:OpenMenu()
 	end
 
 	local function getButtonStatus(mode)
-		if mode == "SilentAim" then
+		if mode == "Aimlock" or mode == "SilentAim" then
 			return supportsAll() and "Supported" or "Not Supported"
-		elseif mode == "Aimlock" then
-			return supportsPartial({"hookmetamethod"}) and "Supported" or "Not Supported"
 		elseif mode == "AimlockNoFeatures" then
 			return supportsPartial({"hookmetamethod"}) and "Supported" or "Not Supported"
 		elseif mode == "SilentAimNoFeatures" then
