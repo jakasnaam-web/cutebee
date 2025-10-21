@@ -1,7 +1,7 @@
-local Games = loadstring(game:HttpGet("https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/Nani"))()
+local Raid = loadstring(game:HttpGet("https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/Nani"))()
 local MessageModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/jakasnaam-web/cutebee/refs/heads/main/Gojo"))()
 
-local URL = Games[game.PlaceId]
+local URL = Raid[game.PlaceId]
 
 if URL then
     MessageModule:ShowMessage("Sapi Hub loaded Successfully in BloxFruits and Enjoy!", 4)
